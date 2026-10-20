@@ -63,7 +63,7 @@ async def test_hello(dut):
     dut._log.debug("Start")
   
     # Our example module doesn't use clock and reset, but we show how to use them here anyway.
-    clock = Clock(dut.clk, 41.666, unit="ns")
+    clock = Clock(dut.clk, 27.778, unit="ns")
     cocotb.start_soon(clock.start())
 
     for latency in range(1, 4):

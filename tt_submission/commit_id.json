@@ -1,6 +1,6 @@
 {
-  "app": "Tiny Tapeout analog-def aa31b4ae",
-  "repo": "git@github.com:MichaelBell/ttgf0p3-tinyQV.git",
-  "commit": "b5f2925e2062ab898ec5d6dd1e931118a86bbb79",
+  "app": "Tiny Tapeout gf180_9t f3ab8fcb",
+  "repo": "https://github.com/MichaelBell/ttboat26-tinyQV.git",
+  "commit": "5c267d0e846656d6ce0a2942be39f6f9c493a983",
   "workflow_url": null
 }

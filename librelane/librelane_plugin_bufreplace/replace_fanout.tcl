@@ -15,10 +15,10 @@ foreach inst [$block getInsts] {
         set master [$inst getMaster]
         set master_name [$master getName]
 
-        if {$master_name == "gf180mcu_fd_sc_mcu7t5v0__dlyb_1"} {
+        if {$master_name == "gf180mcu_fd_sc_mcu9t5v0__dlyc_1"} {
             puts "Replacing $name ($master_name)"
 
-            if { [replace_cell $name gf180mcu_fd_sc_mcu7t5v0__buf_1] == 0 } {
+            if { [replace_cell $name gf180mcu_fd_sc_mcu9t5v0__buf_1] == 0 } {
                 puts "failed"
             }
         }

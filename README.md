@@ -4,6 +4,24 @@
 
 - [Read the documentation for project](docs/info.md)
 
+## Build instructions
+
+Setup for [local hardening](https://tinytapeout.com/guides/local-hardening/), but clone tt-support-tools from https://github.com/MichaelBell/tt-support-tools and switch to the `gf180_9t` branch.
+
+Run `ciel enable e8daeda73ca8f5814dbc0b11d1d05802251a3750` to install the gf180mcuD PDK.
+
+Run `tt/tt_tool.py --create-user-config --gf`
+
+Outside of this repo directory, clone [librelane](https://github.com/librelane/librelane) and checkout the 3.0.14 tag.
+
+Edit `librelane/pdk_hashes.yaml` to use e8daeda73ca8f5814dbc0b11d1d05802251a3750 for gf180mcu.
+
+Follow the librelane [nix install guide](https://librelane.readthedocs.io/en/stable/installation/nix_installation/installation_linux.html)
+
+In the librelane directory, run `nix-shell` and check the librelane install with `librelane --smoke-test`
+
+Inside the nix shell, run `./harden.sh` in this repo.
+
 ## What is Tiny Tapeout?
 
 Tiny Tapeout is an educational project that aims to make it easier and cheaper than ever to get your digital and analog designs manufactured on a real chip.

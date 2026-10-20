@@ -5,15 +5,14 @@ project:
   discord:      "rebelmike"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "A Risc-V SoC for Tiny Tapeout"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     24000000       # Clock frequency in Hz (or 0 if not applicable)
+  clock_hz:     38000000       # Clock frequency in Hz (or 0 if not applicable)
 
   # How many tiles your design occupies? A single tile is about 340x160 uM.
-  tiles: "4x2"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 3x4 or 4x4
+  tiles: "4x4"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 3x4 or 4x4
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
   top_module:  "tt_um_MichaelBell_tinyQV"
-  analog_pins: 1
-
+  
   # List your project's source files here.
   # Source files must be in ./src and you must list each source file separately, one per line.
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
@@ -80,14 +79,6 @@ pinout:
   uio[5]: "SD3"
   uio[6]: "RAM A CS"
   uio[7]: "RAM B CS / PWM"
-
-  # Analog pins - you can add more if you use them, up to 8
-  ua[0]: "DAC output"
-  ua[1]: ""
-  ua[2]: ""
-  ua[3]: ""
-  ua[4]: ""
-  ua[5]: ""  
 
 # Do not change!
 yaml_version: 6

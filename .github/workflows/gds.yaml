@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Run Tiny Tapeout Precheck
-        uses: TinyTapeout/tt-gds-action/precheck@ttgf26a
+        uses: TinyTapeout/tt-gds-action/precheck@ttgf26c
 
   gl_test:
     needs: gds
@@ -69,4 +69,4 @@ jobs:
       pages: write      # to deploy to Pages
       id-token: write   # to verify the deployment originates from an appropriate source
     steps:
-      - uses: TinyTapeout/tt-gds-action/viewer@ttgf26a
+      - uses: TinyTapeout/tt-gds-action/viewer@ttgf26c

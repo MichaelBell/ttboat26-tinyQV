@@ -5,13 +5,12 @@
 
 `default_nettype none
 
-module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=24000) (
+module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=38000) (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path - only some bits used
     output wire [7:0] uio_out,  // IOs: Output path
     output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-    inout  wire [7:0] ua, // analog pins
     input  wire       ena,      // always 1 when the design is powered, so you can ignore it
     input  wire       clk,
     input  wire       rst_n
@@ -38,7 +37,6 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=24000) (
     wire       qspi_ram_b_select;
     wire       audio;
     wire       audio_select;
-    wire [7:0] audio_sample;
     assign uio_out = {audio_select ? audio : qspi_ram_b_select, qspi_ram_a_select, qspi_data_out[3:2], 
                       qspi_clk_out, qspi_data_out[1:0], qspi_flash_select};
     assign uio_oe = rst_n ? {2'b11, qspi_data_oe[3:2], 1'b1, qspi_data_oe[1:0], 1'b1} : 8'h00;
@@ -87,7 +85,7 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=24000) (
 
     wire       debug_uart_txd;
     wire       debug_signal;
-    reg  [7:6] gpio_out_sel;
+    reg  [6:6] gpio_out_sel;
 
     reg [3:0] connect_peripheral;
 
@@ -116,10 +114,6 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=24000) (
         ui_in_sync0 <= ui_in;
         ui_in_sync <= ui_in_sync0;
     end
-
-    // DAC
-    reg dac_select;
-    reg [7:0] dac_data;
 
     // Interrupt requests
     wire [7:0] interrupt_req = {peri_interrupts, ui_in_sync[1:0]};
@@ -208,7 +202,7 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=24000) (
     assign uo_out[4] = debug_register_data ? debug_rd_r[2] : peri_out[4];
     assign uo_out[5] = debug_register_data ? debug_rd_r[3] : peri_out[5];
     assign uo_out[6] = gpio_out_sel[6] ? peri_out[6] : debug_uart_txd;
-    assign uo_out[7] = gpio_out_sel[7] ? peri_out[7] : debug_signal;
+    assign uo_out[7] = peri_out[7];
 
     tinyQV_peripherals #(.CLOCK_KHZ(CLOCK_KHZ)) i_peripherals (
         .clk(clk),
@@ -232,8 +226,6 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=24000) (
 
         .data_read_complete(read_complete),
 
-        .audio_sample(audio_sample),
-
         .user_interrupts(peri_interrupts)
     );
 
@@ -250,10 +242,9 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=24000) (
     always @(*) begin
         case (connect_peripheral)
             PERI_ID:          data_from_read = "GF.3";
-            PERI_GPIO_OUT_SEL:data_from_read = {24'h0, gpio_out_sel, 6'h0};
+            PERI_GPIO_OUT_SEL:data_from_read = {25'h0, gpio_out_sel, 6'h0};
             PERI_DEBUG_UART_STATUS: data_from_read = {31'h0, debug_uart_tx_busy};
             PERI_TIME_LIMIT:  data_from_read = {25'h0, time_limit, 2'b11};
-            PERI_DAC:         data_from_read = {23'h0, dac_select, dac_data};
             PERI_USER:        data_from_read = peri_data_out;
             default:          data_from_read = 32'hFFFF_FFFF;
         endcase
@@ -264,11 +255,11 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=24000) (
     // GPIO Out
     always @(posedge clk) begin
         if (!rst_reg_n) begin
-            gpio_out_sel <= {!ui_in[0], 1'b0};
+            gpio_out_sel <= 1'b0;
             time_limit <= (CLOCK_KHZ / 4000 - 1);
         end
         if (write_n != 2'b11) begin
-            if (connect_peripheral == PERI_GPIO_OUT_SEL) gpio_out_sel <= data_to_write[7:6];
+            if (connect_peripheral == PERI_GPIO_OUT_SEL) gpio_out_sel <= data_to_write[6:6];
             if (connect_peripheral == PERI_TIME_LIMIT) time_limit <= data_to_write[6:2];
         end
     end
@@ -306,59 +297,7 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=24000) (
         debug_rd_r <= debug_rd;
     end
 
-    reg [15:0] debug_signals;
-    always @(*) begin
-        debug_signals  = {debug_instr_complete,
-                          debug_instr_ready,
-                          debug_instr_valid,
-                          debug_fetch_restart,
-                          read_n != 2'b11,
-                          write_n != 2'b11,
-                          debug_data_ready,
-                          debug_interrupt_pending,
-                          debug_branch,
-                          debug_early_branch,
-                          debug_ret,
-                          debug_reg_wen,
-                          debug_counter_0,
-                          debug_data_continue,
-                          debug_stall_txn,
-                          debug_stop_txn};
-    end
-    assign debug_signal = debug_signals[ui_in[6:3]];
-
-    always @(posedge clk) begin
-        if (!rst_reg_n) begin
-            dac_select <= 0;
-            dac_data <= '0;
-        end else if (write_n != 2'b11 && connect_peripheral == PERI_DAC) begin
-            dac_data <= data_to_write[8] ? audio_sample : data_to_write[7:0];
-            dac_select <= data_to_write[8];
-        end else if (dac_select) dac_data <= audio_sample;
-    end
-
-    wire [7:0] dac_buffered;
-    `ifdef SIM
-    assign dac_buffered = dac_data;
-    `else
-    gf180mcu_fd_sc_mcu7t5v0__buf_4 dac_buf [7:0] (.I(dac_data), .Z(dac_buffered));
-    `endif
-
-    /* verilator lint_off PINMISSING */
-    r2r i_r2r(
-        .b0(dac_buffered[0]),
-        .b1(dac_buffered[1]),
-        .b2(dac_buffered[2]),
-        .b3(dac_buffered[3]),
-        .b4(dac_buffered[4]),
-        .b5(dac_buffered[5]),
-        .b6(dac_buffered[6]),
-        .b7(dac_buffered[7]),
-        .out(ua[0])
-    );
-    /* verilator lint_on PINMISSING */
-
     // List all unused inputs to prevent warnings
-    wire _unused = &{ena, ua[7:1], uio_in[7:6], uio_in[3], uio_in[0], read_complete, 1'b0};
+    wire _unused = &{ena, uio_in[7:6], uio_in[3], uio_in[0], read_complete, 1'b0};
 
 endmodule

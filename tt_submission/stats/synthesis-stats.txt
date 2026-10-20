@@ -1,61 +1,57 @@
-206. Printing statistics.
+205. Printing statistics.
 
 === tt_um_MichaelBell_tinyQV ===
 
         +----------Local Count, excluding submodules.
         |        +-Local Area, excluding submodules.
         |        | 
-     9980        - wires
-    10022        - wire bits
-     2010        - public wires
-     2052        - public wire bits
-        9        - ports
-       51        - port bits
-     9996 2.67E+05 cells
-      217 3.81E+03   gf180mcu_fd_sc_mcu7t5v0__and2_1
-       57 1.25E+03   gf180mcu_fd_sc_mcu7t5v0__and3_1
-       35  845.152   gf180mcu_fd_sc_mcu7t5v0__and4_1
-      135  2963.52   gf180mcu_fd_sc_mcu7t5v0__aoi211_1
-      975 1.71E+04   gf180mcu_fd_sc_mcu7t5v0__aoi21_1
-      189 4.56E+03   gf180mcu_fd_sc_mcu7t5v0__aoi221_1
-       57  1751.77   gf180mcu_fd_sc_mcu7t5v0__aoi222_1
-      323 6.38E+03   gf180mcu_fd_sc_mcu7t5v0__aoi22_1
-        9  118.541   gf180mcu_fd_sc_mcu7t5v0__buf_1
-        8  245.862   gf180mcu_fd_sc_mcu7t5v0__buf_4
-      523 4.59E+03   gf180mcu_fd_sc_mcu7t5v0__clkinv_1
-        4  263.424   gf180mcu_fd_sc_mcu7t5v0__dffnq_1
-     1800 1.15E+05   gf180mcu_fd_sc_mcu7t5v0__dffq_1
-       39 2.91E+03   gf180mcu_fd_sc_mcu7t5v0__dffrnq_1
-        1   79.027   gf180mcu_fd_sc_mcu7t5v0__dffsnq_1
-      140 3.38E+03   gf180mcu_fd_sc_mcu7t5v0__dlya_1
-      564 1.86E+04   gf180mcu_fd_sc_mcu7t5v0__mux2_2
-       66 4.64E+03   gf180mcu_fd_sc_mcu7t5v0__mux4_1
-     1457  1.6E+04   gf180mcu_fd_sc_mcu7t5v0__nand2_1
-      355 5.46E+03   gf180mcu_fd_sc_mcu7t5v0__nand3_1
-       66  1.3E+03   gf180mcu_fd_sc_mcu7t5v0__nand4_1
-      743 9.79E+03   gf180mcu_fd_sc_mcu7t5v0__nor2_1
-      199 3.49E+03   gf180mcu_fd_sc_mcu7t5v0__nor3_1
-       57 1.25E+03   gf180mcu_fd_sc_mcu7t5v0__nor4_1
-      308 6.76E+03   gf180mcu_fd_sc_mcu7t5v0__oai211_1
-     1004 1.76E+04   gf180mcu_fd_sc_mcu7t5v0__oai21_1
-       40 1.05E+03   gf180mcu_fd_sc_mcu7t5v0__oai221_1
-        4  131.712   gf180mcu_fd_sc_mcu7t5v0__oai222_1
-       85  1865.92   gf180mcu_fd_sc_mcu7t5v0__oai22_1
-       61 1.47E+03   gf180mcu_fd_sc_mcu7t5v0__oai31_1
-       27  711.245   gf180mcu_fd_sc_mcu7t5v0__oai32_1
-        1   32.928   gf180mcu_fd_sc_mcu7t5v0__oai33_1
-       96 1.69E+03   gf180mcu_fd_sc_mcu7t5v0__or2_1
-       31  680.512   gf180mcu_fd_sc_mcu7t5v0__or3_1
-       12  316.109   gf180mcu_fd_sc_mcu7t5v0__or4_1
-        8   70.246   gf180mcu_fd_sc_mcu7t5v0__tiel
-       71  2026.17   gf180mcu_fd_sc_mcu7t5v0__xnor2_1
-       29 1.53E+03   gf180mcu_fd_sc_mcu7t5v0__xnor3_1
-      184 4.85E+03   gf180mcu_fd_sc_mcu7t5v0__xor2_1
-       15  757.344   gf180mcu_fd_sc_mcu7t5v0__xor3_1
-        1        -   r2r
+     9805        - wires
+     9840        - wire bits
+     1992        - public wires
+     2027        - public wire bits
+        8        - ports
+       43        - port bits
+     9821 3.34E+05 cells
+      187  4222.31   gf180mcu_fd_sc_mcu9t5v0__and2_1
+       57 1.61E+03   gf180mcu_fd_sc_mcu9t5v0__and3_1
+       32  993.485   gf180mcu_fd_sc_mcu9t5v0__and4_1
+      595 1.68E+04   gf180mcu_fd_sc_mcu9t5v0__aoi211_1
+      427 9.64E+03   gf180mcu_fd_sc_mcu9t5v0__aoi21_1
+      143 4.44E+03   gf180mcu_fd_sc_mcu9t5v0__aoi221_1
+       54 2.13E+03   gf180mcu_fd_sc_mcu9t5v0__aoi222_1
+      298 7.57E+03   gf180mcu_fd_sc_mcu9t5v0__aoi22_1
+        9   152.41   gf180mcu_fd_sc_mcu9t5v0__buf_1
+      493 5.57E+03   gf180mcu_fd_sc_mcu9t5v0__clkinv_1
+        4  338.688   gf180mcu_fd_sc_mcu9t5v0__dffnq_1
+     1791 1.42E+05   gf180mcu_fd_sc_mcu9t5v0__dffq_1
+       39 3.52E+03   gf180mcu_fd_sc_mcu9t5v0__dffrnq_1
+        1  101.606   gf180mcu_fd_sc_mcu9t5v0__dffsnq_1
+      140 4.35E+03   gf180mcu_fd_sc_mcu9t5v0__dlya_1
+      901 3.31E+04   gf180mcu_fd_sc_mcu9t5v0__mux2_1
+       51 4.46E+03   gf180mcu_fd_sc_mcu9t5v0__mux4_1
+     1354 1.91E+04   gf180mcu_fd_sc_mcu9t5v0__nand2_1
+      351 6.93E+03   gf180mcu_fd_sc_mcu9t5v0__nand3_1
+       84 2.13E+03   gf180mcu_fd_sc_mcu9t5v0__nand4_1
+     1170 1.98E+04   gf180mcu_fd_sc_mcu9t5v0__nor2_1
+      184 4.15E+03   gf180mcu_fd_sc_mcu9t5v0__nor3_1
+       63 1.78E+03   gf180mcu_fd_sc_mcu9t5v0__nor4_1
+      279 7.87E+03   gf180mcu_fd_sc_mcu9t5v0__oai211_1
+      451 1.02E+04   gf180mcu_fd_sc_mcu9t5v0__oai21_1
+       34 1.15E+03   gf180mcu_fd_sc_mcu9t5v0__oai221_1
+        4  169.344   gf180mcu_fd_sc_mcu9t5v0__oai222_1
+       90  2540.16   gf180mcu_fd_sc_mcu9t5v0__oai22_1
+       78  2.2E+03   gf180mcu_fd_sc_mcu9t5v0__oai31_1
+       34 1.15E+03   gf180mcu_fd_sc_mcu9t5v0__oai32_1
+        1   39.514   gf180mcu_fd_sc_mcu9t5v0__oai33_1
+       82 1.85E+03   gf180mcu_fd_sc_mcu9t5v0__or2_1
+       11   341.51   gf180mcu_fd_sc_mcu9t5v0__or3_1
+       10  366.912   gf180mcu_fd_sc_mcu9t5v0__or4_1
+        8   90.317   gf180mcu_fd_sc_mcu9t5v0__tiel
+      194 6.57E+03   gf180mcu_fd_sc_mcu9t5v0__xnor2_1
+       26 1.69E+03   gf180mcu_fd_sc_mcu9t5v0__xnor3_1
+       79 2.68E+03   gf180mcu_fd_sc_mcu9t5v0__xor2_1
+       12  778.982   gf180mcu_fd_sc_mcu9t5v0__xor3_1
 
-   Area for cell type \r2r is unknown!
-
-   Chip area for module '\tt_um_MichaelBell_tinyQV': 266934.124800
-     of which used for sequential elements: 117842.726400 (44.15%)
+   Chip area for module '\tt_um_MichaelBell_tinyQV': 334084.665600
+     of which used for sequential elements: 145500.364800 (43.55%)
 

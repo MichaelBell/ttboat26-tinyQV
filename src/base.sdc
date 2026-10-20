@@ -31,4 +31,4 @@ set_output_delay -clock [get_clocks $::env(CLOCK_PORT)] -min 1 {uo_out}
 set_output_delay -clock [get_clocks $::env(CLOCK_PORT)] -max 2 {uo_out}
 
 # Ignore switch of setup/ctrl mux on QSPI output paths
-set_false_path -from rst_reg_n_gf180mcu_fd_sc_mcu7t5v0__dffnq_1_Q -to {uio_oe uio_out}
+set_false_path -from rst_reg_n_gf180mcu_fd_sc_mcu9t5v0__dffnq_1_Q -to {uio_oe uio_out}

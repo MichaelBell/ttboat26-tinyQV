@@ -156,7 +156,7 @@ async def test_timer(dut):
 
     # Read time
     await send_instr(dut, InstructionLW(x1, x0, -0x100).encode())
-    assert 7 <= await read_reg(dut, x1) <= 9
+    assert 8 <= await read_reg(dut, x1) <= 10
 
     # Set timecmp
     await send_instr(dut, InstructionADDI(x1, x0, 30).encode())
@@ -196,7 +196,7 @@ async def test_time_limit(dut):
 
     # Read time limit
     await send_instr(dut, InstructionLW(x1, tp, 0x2c).encode())
-    assert await read_reg(dut, x1) == 35
+    assert await read_reg(dut, x1) == 31
 
     # Halve the divider, time should now advance twice as fast
     await send_instr(dut, InstructionADDI(x1, x0, 19).encode())
@@ -212,7 +212,7 @@ async def test_time_limit(dut):
 
     # Read time
     await send_instr(dut, InstructionLW(x1, x0, -0x100).encode())
-    assert start_time+61 <= await read_reg(dut, x1) <= start_time+65
+    assert start_time+61 <= await read_reg(dut, x1) <= start_time+66
 
     # Set divider to 60, time should advance more slowly
     await send_instr(dut, InstructionADDI(x1, x0, 59).encode())

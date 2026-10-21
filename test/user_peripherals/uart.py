@@ -134,7 +134,7 @@ async def test_basic(dut):
 async def test_divider(dut):
     dut._log.info("Start")
 
-    # Set the clock frequency to 36MHz
+    # Set the clock frequency to 32MHz
     clock = Clock(dut.clk, 31.25, unit="ns")
     cocotb.start_soon(clock.start())
 
@@ -144,7 +144,7 @@ async def test_divider(dut):
     await tqv.reset(initial_ui_in=0x80)
 
     for baud in (9600, 500000, 57600):
-        divider = 36000000 // baud
+        divider = 32000000 // baud
         bit_time = 1000000000 // baud
         dut._log.info(f"Test {baud} baud, divider {divider}")
 

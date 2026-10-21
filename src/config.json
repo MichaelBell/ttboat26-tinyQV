@@ -53,7 +53,7 @@
   "FALLBACK_SDC_FILE": "dir::base.sdc",
   "SYNTH_AUTONAME": 1,
 
-  "meta": {
+  "//meta": {
     "flow": "Classic",
     "substituting_steps": {
       "+OpenROAD.RepairDesignPostGPL": "BufReplace.ReplaceFanoutDlybWithBuf"

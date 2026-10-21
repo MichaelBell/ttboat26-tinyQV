@@ -58,7 +58,7 @@ jobs:
           submodules: recursive
 
       - name: GL test
-        uses: MichaelBell/tt-gds-action/gl_test@ttgf0p3
+        uses: MichaelBell/tt-gds-action/gl_test@ttboat26
         with:
           make-targets: ${{ matrix.target }}
 

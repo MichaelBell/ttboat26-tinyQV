@@ -60,7 +60,7 @@ async def test_simple(dut):
     dut._log.info("Start")
 
     # Set the clock period to 64 MHz
-    clock = Clock(dut.clk, 27.778, unit="ns")
+    clock = Clock(dut.clk, 31.25, unit="ns")
     cocotb.start_soon(clock.start())
 
     tqv = TinyQV(dut, PERIPHERAL_NUM)
@@ -123,7 +123,7 @@ async def test_multi_byte(dut):
     dut._log.info("Start")
 
     # Set the clock period to 64 MHz
-    clock = Clock(dut.clk, 27.778, unit="ns")
+    clock = Clock(dut.clk, 31.25, unit="ns")
     cocotb.start_soon(clock.start())
 
     tqv = TinyQV(dut, PERIPHERAL_NUM)
@@ -219,7 +219,7 @@ async def test_dc(dut):
     dut._log.info("Start")
 
     # Set the clock period to 64 MHz
-    clock = Clock(dut.clk, 27.778, unit="ns")
+    clock = Clock(dut.clk, 31.25, unit="ns")
     cocotb.start_soon(clock.start())
 
     tqv = TinyQV(dut, PERIPHERAL_NUM)

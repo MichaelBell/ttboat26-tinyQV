@@ -61,7 +61,7 @@ async def test_basic(dut):
     dut._log.info("Start")
 
     # Set the clock frequency to 64MHz
-    clock = Clock(dut.clk, 27.778, unit="ns")
+    clock = Clock(dut.clk, 31.25, unit="ns")
     cocotb.start_soon(clock.start())
 
     tqv = TinyQV(dut, PERIPHERAL_NUM)
@@ -135,7 +135,7 @@ async def test_divider(dut):
     dut._log.info("Start")
 
     # Set the clock frequency to 36MHz
-    clock = Clock(dut.clk, 27.778, unit="ns")
+    clock = Clock(dut.clk, 31.25, unit="ns")
     cocotb.start_soon(clock.start())
 
     tqv = TinyQV(dut, PERIPHERAL_NUM)

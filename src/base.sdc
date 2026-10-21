@@ -23,7 +23,7 @@ set_output_delay -clock [get_clocks $::env(CLOCK_PORT)] -max $output_setup_delay
 set_output_delay -clock [get_clocks $::env(CLOCK_PORT)] -min $output_hold_delay_value {uio_out uio_oe}
 
 # Lower delay on SPI clock output because it can be driven at negedge for timing tweaking
-set spi_clk_setup_delay_value [expr $::env(CLOCK_PERIOD) * 0.14]
+set spi_clk_setup_delay_value [expr $::env(CLOCK_PERIOD) * 0.1]
 set_output_delay -clock [get_clocks $::env(CLOCK_PORT)] -max $spi_clk_setup_delay_value {uio_out[3]}
 
 # Delays on user outputs
@@ -31,4 +31,4 @@ set_output_delay -clock [get_clocks $::env(CLOCK_PORT)] -min 1 {uo_out}
 set_output_delay -clock [get_clocks $::env(CLOCK_PORT)] -max 2 {uo_out}
 
 # Ignore switch of setup/ctrl mux on QSPI output paths
-set_false_path -from rst_reg_n_gf180mcu_fd_sc_mcu9t5v0__dffnq_1_Q -to {uio_oe uio_out}
+set_false_path -from rst_reg_n_gf180mcu_fd_sc_mcu7t5v0__dffnq_1_Q -to {uio_oe uio_out}

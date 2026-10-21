@@ -8,13 +8,18 @@
 `define USE_NEW_REGMAP_B // only takes effect if USE_NEW_REGMAP is enabled
 `endif
 
+`ifndef PURE_RTL
+`define PURE_RTL
+`endif
+
 `define USE_PHASE_LATCHES
-`define USE_P_LATCHES_ONLY
-`define USE_LSB_DELAY_REGS
+//`define USE_P_LATCHES_ONLY
+//`define USE_LSB_DELAY_REGS
 `define USE_OCT_COUNTER_LATCHES
 `define USE_OCT_COUNTER_READ // requires USE_OCT_COUNTER_LATCHES and USE_NEW_READ to work
 `define USE_NEW_READ
-//`define USE_OUTPUT_BUFFERS
+`define USE_OUTPUT_BUFFERS
+`define USE_ALT_INTERFACE
 
 `define USE_SLOPE_EXP_REGS
 `define USE_PARAMS_REGS
@@ -29,15 +34,19 @@
 `define USE_ORION_WAVE_PWM
 `define USE_STEREO
 `define USE_STEREO_POS
-`define USE_OSC_SYNC // currently only implemented to work with USE_P_LATCHES_ONLY, need write back condition (override oct_enable) for next step otherwise
+`define USE_OSC_SYNC
 `define USE_4_BIT_MODE // only works together with USE_OSC_SYNC
 //`define USE_OSC_SYNC_ONLY_FOR_SOME_CHANNELS
 `define USE_SWAPPED_DETUNE_SIGNS
 `define USE_COMMON_SAT_STEREO
 `define USE_DETUNE_FIFTH
+`define USE_QUANTIZATION_LEVEL
+`define USE_DETUNE_COUNTER
+`define USE_LINEAR_NOISE
 
 
 `define USE_MORE_REG_RESETS
+`define USE_CHANNEL_PIPELINE_REGS
 
 
 `ifdef USE_STEREO
@@ -56,10 +65,10 @@
 
 `ifdef USE_NEW_REGMAP
 //	`define CHANNEL_MODE_BITS 4
-	`define CHANNEL_MODE_BITS 12
+	`define CHANNEL_MODE_BITS 16
 	`ifdef USE_NEW_REGMAP_B
 		`define REGS_PER_CHANNEL 8
-		`define REG_BITS 13 // Could be 13? If the registers don't grow too much
+		`define REG_BITS 16 // Could be 13? If the registers don't grow too much
 	`else
 		`define USE_NEW_REGMAP_A
 		`define REGS_PER_CHANNEL 6
@@ -83,7 +92,11 @@
 
 `define CFG_BIT_STEREO_EN 0
 `define CFG_BIT_STEREO_POS_EN 1
-`define CFG_BITS 2
+`define CFG_BIT_QUANTIZATION_FIX 2
+`define CFG_BIT_DETUNE_STEP0 3
+`define CFG_DETUNE_STEP_BITS 9
+`define CFG_BIT_LINEAR_NOISE 12
+`define CFG_BITS 13
 
 
 // 0-2: detune_exp
@@ -97,6 +110,10 @@
 `define CHANNEL_MODE_BIT_OSC_SYNC_EN 9
 `define CHANNEL_MODE_BIT_OSC_SYNC_SOFT 10
 `define CHANNEL_MODE_BIT_DETUNE_FIFTH 11
+`define CHANNEL_MODE_BIT_COMMON_QUANT 12
+`define CHANNEL_MODE_BIT_QUANT0 13
+`define CHANNEL_MODE_BIT_QUANT1 14
+`define CHANNEL_MODE_BIT_QUANT2 15
 
 `define CHANNEL_MODE_FLAGS_OSC_SYNC_MASK ((1<<`CHANNEL_MODE_BIT_OSC_SYNC_EN)|(1<<`CHANNEL_MODE_BIT_OSC_SYNC_SOFT))
 
@@ -132,9 +149,14 @@
 `define SRC1_SEL_AMP_TARGET   3'd7
 `ifdef USE_ORION_WAVE
 `define SRC1_SEL_ACC          4'd8
+`define SRC1_SEL_LIN_NOISE_PHASE 4'd9
 `endif
 
+`ifdef USE_DETUNE_COUNTER
+`define SRC2_SEL_BITS 4
+`else
 `define SRC2_SEL_BITS 3
+`endif
 `define SRC2_SEL_ACC          3'd0
 `define SRC2_SEL_REV_PHASE    3'd1
 `define SRC2_SEL_PHASE_STEP   3'd2
@@ -143,6 +165,13 @@
 `define SRC2_SEL_ZERO         3'd5
 `ifdef USE_ORION_WAVE
 `define SRC2_SEL_BITSHUFFLE_ACC 3'd6
+`endif
+`ifdef USE_LINEAR_NOISE
+`define SRC2_SEL_LIN_NOISE_RAMP 3'd7
+`endif
+`ifdef USE_DETUNE_COUNTER
+`define SRC2_SEL_OCT_COUNTER_LOW  4'd8
+`define SRC2_SEL_OCT_COUNTER_HIGH 4'd9
 `endif
 
 `define DEST_SEL_BITS 2
@@ -190,7 +219,7 @@
 `define SWEEP_INDEX_PWM_OFFSET 4
 // Not used for sweeping, but for read-back
 `define SWEEP_INDEX_PHASE 5
-`define READ_INDEX_BITS 3
+`define READ_INDEX_BITS 4
 
 
 // For test interface
@@ -207,8 +236,8 @@
 
 
 
-//`define ALWAYS_FF_POSEDGE_CLK always_ff @(posedge clk)
-`define ALWAYS_FF_POSEDGE_CLK always_ff @(posedge clk, negedge rst_n)
+`define ALWAYS_FF_POSEDGE_CLK always_ff @(posedge clk)
+//`define ALWAYS_FF_POSEDGE_CLK always_ff @(posedge clk, negedge rst_n)
 
 
 //`define PIPELINE
@@ -223,8 +252,8 @@
 
 `ifndef PURE_RTL
 //`define NAMED_BUF_EN
-//`define USE_LATCHES
-//`define USE_EXTRA_DELAY_BUFFERS
+`define USE_LATCHES
+`define USE_EXTRA_DELAY_BUFFERS
 `endif
 
 

@@ -56,9 +56,19 @@
   "//meta": {
     "flow": "Classic",
     "substituting_steps": {
-      "+OpenROAD.RepairDesignPostGPL": "BufReplace.ReplaceFanoutDlybWithBuf"
+      "+OpenROAD.RepairDesignPostGPL": "OpenROAD.ReplaceECOCell"
     }
   },
+
+  "REPLACE_ECO_CELL": [
+    {
+      "instance": "^fanout.*",
+      "current_cell": "gf180mcu_fd_sc_mcu7t5v0__dlyb_1",
+      "new_cell": "gf180mcu_fd_sc_mcu7t5v0__buf_1"
+    }
+  ],
+
+  "SYNTH_STRATEGY": "DELAY 4",
 
   "//": "Configuration docs: https://librelane.readthedocs.io/en/latest/reference/configuration.html",
 

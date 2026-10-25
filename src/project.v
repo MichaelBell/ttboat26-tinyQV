@@ -122,9 +122,19 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=32000) (
     always @(negedge clk) setup_rst_n <= rst_n;
 
     /* verilator lint_off SYNCASYNCNET */
-    (* keep *) reg rst_reg_n;
-    /* verilator lint_on SYNCASYNCNET */
+`ifdef SIM
+    reg rst_reg_n;
     always @(negedge clk) rst_reg_n <= rst_n & setup_done;
+`else
+    wire rst_reg_n;
+    (* keep *)
+    gf180mcu_fd_sc_mcu7t5v0__dffnq_1 i_rst_reg_n (
+        .CLKN(clk),
+        .D(rst_n & setup_done),
+        .Q(rst_reg_n)
+    );
+`endif
+    /* verilator lint_on SYNCASYNCNET */
 
     always @(posedge clk) begin
         if (!setup_rst_n) begin

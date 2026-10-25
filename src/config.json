@@ -51,7 +51,7 @@
 
   "//": "SDC Customizations",
   "FALLBACK_SDC_FILE": "dir::base.sdc",
-  "SYNTH_AUTONAME": 1,
+  "//SYNTH_AUTONAME": 1,
 
 
   "SYNTH_STRATEGY": "DELAY 4",

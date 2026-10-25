@@ -24,8 +24,8 @@
   "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.0,
 
   "//": "Setup slack margin - set resizer to ignore the slow corners, but add plenty of margin.",
-  "PL_RESIZER_SETUP_SLACK_MARGIN": 3.5,
-  "GRT_RESIZER_SETUP_SLACK_MARGIN": 3.0,
+  "PL_RESIZER_SETUP_SLACK_MARGIN": 4.5,
+  "GRT_RESIZER_SETUP_SLACK_MARGIN": 4.0,
   "RSZ_CORNERS": [
       "nom_tt_025C_3v30",
       "nom_ff_n40C_3v60",
@@ -53,20 +53,6 @@
   "FALLBACK_SDC_FILE": "dir::base.sdc",
   "SYNTH_AUTONAME": 1,
 
-  "//meta": {
-    "flow": "Classic",
-    "substituting_steps": {
-      "+OpenROAD.RepairDesignPostGPL": "OpenROAD.ReplaceECOCell"
-    }
-  },
-
-  "REPLACE_ECO_CELL": [
-    {
-      "instance": "^fanout.*",
-      "current_cell": "gf180mcu_fd_sc_mcu7t5v0__dlyb_1",
-      "new_cell": "gf180mcu_fd_sc_mcu7t5v0__buf_1"
-    }
-  ],
 
   "SYNTH_STRATEGY": "DELAY 4",
 

@@ -2,12 +2,18 @@ USER_PERIPHERAL_2 = uart
 USER_PERIPHERAL_3 = game_pmod
 USER_PERIPHERAL_4 = 
 USER_PERIPHERAL_5 = pwl_synth.test
-USER_PERIPHERAL_6 = 
-USER_PERIPHERAL_7 = 
+USER_PERIPHERAL_6 = CORDIC.test_trigonometric_simple \
+                                         CORDIC.test_linear_simple \
+                                         CORDIC.test_hyperbolic_vectoring_square_vis \
+                                         CORDIC.test_hyperbolic_vectoring_simple \
+                                         CORDIC.test_hyperbolic_rotating_sweep_and_vis \
+                                         CORDIC.test_hyperbolic_rotating_simple \
+                                         CORDIC.test_circular_rotating_sweep_and_vis
+USER_PERIPHERAL_7 = tqvp_laurie_dwarf_line_table_accelerator.test
 USER_PERIPHERAL_8 = spi
-USER_PERIPHERAL_9 = 
+USER_PERIPHERAL_9 = ubcd.test
 USER_PERIPHERAL_10 = matt_pwm.test
-USER_PERIPHERAL_11 = 
+USER_PERIPHERAL_11 = vga_tester.test
 USER_PERIPHERAL_12 = 
 USER_PERIPHERAL_13 = 
 USER_PERIPHERAL_14 = 

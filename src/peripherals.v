@@ -284,7 +284,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         .user_interrupt(user_interrupts[5])
     );
 
-    tqvp_full_empty i_user_peri06 (
+    tqvp_CORDIC i_user_peri06 (
         .clk(clk),
         .rst_n(rst_n_rebuf),
 
@@ -303,7 +303,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         .user_interrupt(user_interrupts[6])
     );
 
-    tqvp_full_empty i_user_peri07 (
+    tqvp_laurie_dwarf_line_table_accelerator i_user_peri07 (
         .clk(clk),
         .rst_n(rst_n_rebuf),
 
@@ -340,7 +340,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         .data_out(data_from_simple_peri[0])
     );
 
-    tqvp_byte_empty i_simple_peri17 (
+    tqvp_rebeccargb_universal_decoder i_simple_peri17 (
         .clk(clk),
         .rst_n(rst_n_rebuf),
 
@@ -370,7 +370,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         .data_out(data_from_simple_peri[2])
     );
 
-    tqvp_byte_empty i_simple_peri19(
+    tqvp_htfab_vga_tester i_simple_peri19(
         .clk(clk),
         .rst_n(rst_n_rebuf),
         .ui_in(ui_in),

@@ -1,6 +1,6 @@
 USER_PERIPHERAL_2 = uart
 USER_PERIPHERAL_3 = game_pmod
-USER_PERIPHERAL_4 = 
+USER_PERIPHERAL_4 = prism.test
 USER_PERIPHERAL_5 = pwl_synth.test
 USER_PERIPHERAL_6 = CORDIC.test_trigonometric_simple \
                                          CORDIC.test_linear_simple \

@@ -59,6 +59,13 @@ project:
     - "user_peripherals/CORDIC/CORDIC.v"
     - "user_peripherals/CORDIC/defines.v"
     - "user_peripherals/vga_tester/peripheral.v"
+    - "user_peripherals/prism/prism_periph.v"
+    - "user_peripherals/prism/latch_shift_reg.v"
+    - "user_peripherals/prism/latch_loader.v"
+    - "user_peripherals/prism/prism.v"
+    - "user_peripherals/prism/prism_sr_sit.v"
+    - "user_peripherals/prism/prism_latch_sit.v"
+    - "user_peripherals/prism/prism_latch_reg.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).

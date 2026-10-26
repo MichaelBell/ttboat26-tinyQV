@@ -246,7 +246,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
     // --------------------------------------------------------------------- //
     // Full interface peripherals
 
-    tqvp_full_empty i_user_peri04(
+    tqvp_prism i_user_peri04(
         .clk(clk),
         .rst_n(rst_n_rebuf),
 

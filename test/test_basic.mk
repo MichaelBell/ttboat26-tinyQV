@@ -7,6 +7,7 @@ TOPLEVEL_LANG ?= verilog
 WAVES ?= 1
 SRC_DIR = $(PWD)/../src
 PROJECT_SOURCES = project.v peri*.v tinyQV/cpu/*.v tinyQV/peri/uart/*.v user_peripherals/*.v user_peripherals/*.sv user_peripherals/*/*.v user_peripherals/*/*.sv
+export PYTHONPATH = user_peripherals/prism
 
 ifneq ($(GATES),yes)
 

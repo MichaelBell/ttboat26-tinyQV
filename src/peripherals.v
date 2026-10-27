@@ -37,10 +37,10 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
 
     input         data_read_complete,  // Set by TinyQV when a read is complete
 
-    output [7:2] user_interrupts  // User peripherals get interrupts 2-6
+    output [9:2] user_interrupts  // User peripherals get interrupts 2-6
 );
 
-    localparam NUM_USER_PERI = 8;
+    localparam NUM_USER_PERI = 10;
     localparam NUM_SIMPLE_PERI = 4;
 
     // Registered data out to TinyQV
@@ -122,9 +122,9 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
             data_from_peri = {24'h0, data_from_simple_peri[addr_in[5:4]]};
             data_ready_from_peri = 1;
         end else begin
-            peri_user[addr_in[8:6]] = 1;
-            data_from_peri = data_from_user_peri[addr_in[8:6]];
-            data_ready_from_peri = data_ready_from_user_peri[addr_in[8:6]];
+            peri_user[addr_in[9:6]] = 1;
+            data_from_peri = data_from_user_peri[addr_in[9:6]];
+            data_ready_from_peri = data_ready_from_user_peri[addr_in[9:6]];
         end
     end
 
@@ -152,7 +152,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
     assign data_from_user_peri[PERI_GPIO] = (addr_in[5:0] == 6'h0) ? {24'h0, gpio_out} :
                                             (addr_in[5:0] == 6'h4) ? {24'h0, ui_in}    :
                                             (addr_in[5:0] == 6'h10)? {29'h0, audio_func_sel} :
-                                            ({addr_in[5], addr_in[1:0]} == 3'b100) ? {27'h0, gpio_out_func_sel[addr_in[4:2]][4:0] } :
+                                            ({addr_in[5], addr_in[1:0]} == 3'b100) ? {27'h0, gpio_out_func_sel[addr_in[4:2]] } :
                                             32'h0;
     assign data_ready_from_user_peri[PERI_GPIO] = 1;
     assign uo_out_from_user_peri[PERI_GPIO] = gpio_out;
@@ -176,7 +176,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
                 if (gpio_out_func_sel[i][4]) begin
                     uo_out_comb[i] = uo_out_from_simple_peri[gpio_out_func_sel[i][1:0]][i];
                 end else begin
-                    uo_out_comb[i] = uo_out_from_user_peri[gpio_out_func_sel[i][2:0]][i];
+                    uo_out_comb[i] = uo_out_from_user_peri[gpio_out_func_sel[i][3:0]][i];
                 end
             end
         end
@@ -246,7 +246,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
     // --------------------------------------------------------------------- //
     // Full interface peripherals
 
-    tqvp_prism i_user_peri04(
+    tqvp_hx2003_pulse_transmitter i_user_peri04(
         .clk(clk),
         .rst_n(rst_n_rebuf),
 
@@ -321,6 +321,44 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
 
         .user_interrupt(user_interrupts[7])
     );
+
+    tqvp_prism i_user_peri08(
+        .clk(clk),
+        .rst_n(rst_n_rebuf),
+
+        .ui_in(ui_in),
+        .uo_out(uo_out_from_user_peri[8]),
+
+        .address(addr_in[5:0]),
+        .data_in(data_in),
+
+        .data_write_n(data_write_n    | {2{~peri_user[8]}}),
+        .data_read_n(data_read_n_peri | {2{~peri_user[8]}}),
+
+        .data_out(data_from_user_peri[8]),
+        .data_ready(data_ready_from_user_peri[8]),
+
+        .user_interrupt(user_interrupts[8])
+    );    
+
+    tqvp_full_empty i_user_peri09(
+        .clk(clk),
+        .rst_n(rst_n_rebuf),
+
+        .ui_in(ui_in),
+        .uo_out(uo_out_from_user_peri[9]),
+
+        .address(addr_in[5:0]),
+        .data_in(data_in),
+
+        .data_write_n(data_write_n    | {2{~peri_user[9]}}),
+        .data_read_n(data_read_n_peri | {2{~peri_user[9]}}),
+
+        .data_out(data_from_user_peri[9]),
+        .data_ready(data_ready_from_user_peri[9]),
+
+        .user_interrupt(user_interrupts[9])
+    );    
 
     // --------------------------------------------------------------------- //
     // Byte interface peripherals

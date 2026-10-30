@@ -37,6 +37,8 @@ VERILOG_SOURCES += $(PDK_ROOT)/gf180mcuD/libs.ref/gf180mcu_fd_sc_mcu7t5v0/verilo
 
 # this gets copied in by the GDS action workflow
 VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
+# the PRISM SIT hard macro's netlist (the tile netlist instantiates it)
+VERILOG_SOURCES += $(PWD)/../macros/CFGMEM8x44/CFGMEM8x44.pnl.v
 
 endif
 

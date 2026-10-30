@@ -241,6 +241,7 @@ module prism
    (
       .clk                   ( clk              ),
       .rst_n                 ( rst_n            ),
+      .fsm_enable            ( fsm_enable       ),
                                                         
       // Latch bus
       .latch_data            ( latch_data       ),

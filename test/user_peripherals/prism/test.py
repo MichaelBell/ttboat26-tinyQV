@@ -13,7 +13,7 @@ from tqv import TinyQV
 # When submitting your design, change this to the peripheral number
 # in peripherals.v.  e.g. if your design is i_user_peri05, set this to 5.
 # The peripheral number is not used by the test harness.
-PERIPHERAL_NUM = 4
+PERIPHERAL_NUM = 8
 
 @cocotb.test()
 async def test_project(dut):
@@ -285,8 +285,10 @@ async def test_project(dut):
         spi_data = [0xF5, 0x27]
         chroma = 'spislave'
 
-        # Write a known byte to count1_preload register
-        await tqv.write_byte_reg(0x20, 0xF367)
+        # Write the two bytes the chroma will shift out into the count1_preload
+        # register (a word write: the TinyQV harness's byte write takes an
+        # 8-bit value; the standalone tile's SPI harness wrote 32 bits anyway)
+        await tqv.write_word_reg(0x20, 0x0000F367)
         
         # Start a transfer
         spi_transfer = True 
@@ -382,6 +384,12 @@ async def test_project(dut):
         for i in range(clocks_per_phase * 2 * 20):
             await encoder0.update(1)
 
+        # Let the knob rest before reading: the last edge still has to pass
+        # the 128-clock debounce (and the model's edge noise has to settle),
+        # and the TinyQV register read can reach the bus within 25 clocks.
+        for i in range(256):
+            await encoder0.update(0)
+
         # Read the count2 count
         dut._log.info("    Testing count2 value")
         count = await tqv.read_word_reg(0x24) >> 24
@@ -391,6 +399,9 @@ async def test_project(dut):
         dut._log.info("    Checking encoder 0")
         for i in range(clocks_per_phase * 2 * 12):
             await encoder0.update(-1)
+
+        for i in range(256):
+            await encoder0.update(0)
 
         dut._log.info("    Testing count2 value")
         count = await tqv.read_word_reg(0x24) >> 24
@@ -418,8 +429,11 @@ async def test_project(dut):
 
     dut._log.info("Testing PRISM")
 
-    # Write values to the count2_compare / count1_preload
-    await tqv.write_word_reg(0x00, 0x40000000)
+    # Write values to the control register (mux selects only, FSM left disabled:
+    # the State Information Table is a latch macro without a reset, so an
+    # enabled PRISM shows undefined outputs until a chroma has been loaded),
+    # the count2_compare and the count1_preload
+    await tqv.write_word_reg(0x00, 0x00000015)
     await ClockCycles(dut.clk, 8)
     await tqv.write_word_reg(0x20, 0x0000FA12)
     await ClockCycles(dut.clk, 8)
@@ -429,7 +443,7 @@ async def test_project(dut):
     dut._log.info("Testing basic control and latch register access")
     assert await tqv.read_word_reg(0x28) == 0x00000034
     assert await tqv.read_word_reg(0x20) == 0x0000FA12
-    assert await tqv.read_word_reg(0x0) == 0x40000000
+    assert await tqv.read_word_reg(0x0) == 0x00000015
 
     await tqv.write_word_reg(0x00, 0x00000000)
 

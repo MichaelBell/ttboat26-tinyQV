@@ -19,6 +19,12 @@ RISC-V core.  The seven FSM inputs are `ui_in[6:0]`, the seven FSM outputs are
 the sky130 peripheral; only the instantiated latch, AND, OR and clock-gate cells
 were changed to their `gf180mcu_fd_sc_mcu7t5v0` equivalents.
 
+The State Information Table (8 words x 44 bits of latches, loaded as a shift chain
+and read by the current state index) is a hard macro, `CFGMEM8x44`, built with the
+DFFRAM compiler for the GF180 7-track library and placed in the upper-right corner
+of the tile (`macros/CFGMEM8x44`, `src/config.json`).  The RTL instantiates it in
+`prism_latch_sit.v`; `cfgmem8x44.v` is its behavioural model for simulation.
+
 ### What it does
 
 This is a Programmable Reconfigurable Indexed State Machine (PRISM) that executes a Verilog coded Mealy state machine that is loaded via a configuration bitstream at runtime.

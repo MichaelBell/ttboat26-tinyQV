@@ -22,7 +22,9 @@
 module latch_loader
 #(
     parameter DEPTH    = 8,
-    parameter WIDTH    = 64
+    parameter WIDTH    = 64,
+    parameter LATCH_EN = 1                         // 1: build the per-row latch_en AND gates;
+                                                   // 0: the row select and pulse go out as is (CFGMEM macro)
 )(
     input  wire                  clk,
     input  wire                  rst_n,
@@ -32,7 +34,9 @@ module latch_loader
     input  wire  [31:0]          data_in,          // Incoming data from RISC-V
     input  wire  [5:0]           address,          // Input address
     output wire  [WIDTH-1:0]     config_data,      // Incoming data from RISC-V
-    output wire  [DEPTH-1:0]     latch_en          // Latch enables, active high
+    output wire  [DEPTH-1:0]     latch_en,         // Latch enables, active high (LATCH_EN = 1)
+    output wire  [DEPTH-1:0]     row_sel,          // One-hot row being loaded (the CFGMEM's WROW)
+    output wire                  row_we            // The load pulse (the CFGMEM's WE0)
 );
 
     localparam    IDX_BITS = DEPTH > 16 ? 5 : DEPTH > 8 ? 4 : 3;
@@ -91,25 +95,36 @@ module latch_loader
         endcase
     end
 
+    // Row select and load pulse for a CFGMEM macro, which ANDs them itself
+    assign row_sel = idx_decode;
+    assign row_we  = latch_pulse;
+
     // Latch enable logic
-`ifdef SIM
-   assign latch_en = idx_decode & {DEPTH{latch_pulse}};
-`else
     generate
-      for (i = 0; i < DEPTH; i = i + 1)
-      begin : AND_GEN
-         /* verilator lint_off PINMISSING */
-         // Instantiate AND gate for latch enable
-         (* keep = 1 *) gf180mcu_fd_sc_mcu7t5v0__and2_1 gate_and
-                       (
-                           .A1 ( idx_decode[i] ),
-                           .A2 ( latch_pulse   ),
-                           .Z  ( latch_en[i]   )
-                       );
-         /* verilator lint_on PINMISSING */
+      if (LATCH_EN == 0)
+      begin : NO_LATCH_EN
+         assign latch_en = {DEPTH{1'b0}};
+      end
+      else
+      begin : LATCH_EN_GEN
+`ifdef SIM
+         assign latch_en = idx_decode & {DEPTH{latch_pulse}};
+`else
+         for (i = 0; i < DEPTH; i = i + 1)
+         begin : AND_GEN
+            /* verilator lint_off PINMISSING */
+            // Instantiate AND gate for latch enable
+            (* keep = 1 *) gf180mcu_fd_sc_mcu7t5v0__and2_1 gate_and
+                          (
+                              .A1 ( idx_decode[i] ),
+                              .A2 ( latch_pulse   ),
+                              .Z  ( latch_en[i]   )
+                          );
+            /* verilator lint_on PINMISSING */
+         end
+`endif
       end
     endgenerate
-`endif
 
     // Data buffer
     assign config_data[31:0] = data_in;

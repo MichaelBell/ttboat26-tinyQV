@@ -111,7 +111,7 @@
     "CFGMEM8x44": {
       "instances": {
         "i_peripherals.i_user_peri08.i_prism.prism_latch_sit_i.prism_sit": {
-          "location": [841.68, 682.08],
+          "location": [851.20, 682.08],
           "orientation": "N"
         }
       },
@@ -149,5 +149,5 @@
   "FP_MACRO_HORIZONTAL_HALO": 2,
   "FP_MACRO_VERTICAL_HALO": 1,
   "//": "No signal routing on Metal4 over the macro: the abstract hides only the macro's own stripe columns there, so the global router would otherwise send nets through and short the tile's stripes (the LISA chip's gf11).",
-  "ROUTING_OBSTRUCTIONS": [["Metal4", 841.68, 682.08, 1436.96, 733.04]]
+  "ROUTING_OBSTRUCTIONS": [["Metal4", 851.20, 682.08, 1436.96, 733.04]]
 }

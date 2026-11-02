@@ -14,7 +14,7 @@ jobs:
           submodules: recursive
 
       - name: Build GDS
-        uses: TinyTapeout/tt-gds-action@ttgf26c
+        uses: TinyTapeout/tt-gds-action@ttboat26
         with:
           pdk: gf180mcuD
           librelane-version: 3.1.0.dev4
@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Run Tiny Tapeout Precheck
-        uses: TinyTapeout/tt-gds-action/precheck@ttgf26c
+        uses: TinyTapeout/tt-gds-action/precheck@ttboat26
         with:
           tools-ref: gf180-xxl
 
@@ -71,4 +71,4 @@ jobs:
       pages: write      # to deploy to Pages
       id-token: write   # to verify the deployment originates from an appropriate source
     steps:
-      - uses: TinyTapeout/tt-gds-action/viewer@ttgf26c
+      - uses: TinyTapeout/tt-gds-action/viewer@ttboat26

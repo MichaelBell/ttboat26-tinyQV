@@ -40,8 +40,8 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
     output [9:2] user_interrupts  // User peripherals get interrupts 2-6
 );
 
-    localparam NUM_USER_PERI = 10;
-    localparam NUM_SIMPLE_PERI = 4;
+    localparam NUM_USER_PERI = 12;
+    localparam NUM_SIMPLE_PERI = 8;
 
     // Registered data out to TinyQV
     reg  [31:0] data_out_r;
@@ -118,8 +118,8 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         peri_simple = 0;
 
         if (addr_in[10:9] == 2'b10) begin
-            peri_simple[addr_in[5:4]] = 1;
-            data_from_peri = {24'h0, data_from_simple_peri[addr_in[5:4]]};
+            peri_simple[addr_in[6:4]] = 1;
+            data_from_peri = {24'h0, data_from_simple_peri[addr_in[6:4]]};
             data_ready_from_peri = 1;
         end else begin
             peri_user[addr_in[9:6]] = 1;
@@ -174,7 +174,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
                 uo_out_comb[i] = 0;
 
                 if (gpio_out_func_sel[i][4]) begin
-                    uo_out_comb[i] = uo_out_from_simple_peri[gpio_out_func_sel[i][1:0]][i];
+                    uo_out_comb[i] = uo_out_from_simple_peri[gpio_out_func_sel[i][2:0]][i];
                 end else begin
                     uo_out_comb[i] = uo_out_from_user_peri[gpio_out_func_sel[i][3:0]][i];
                 end
@@ -341,6 +341,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         .user_interrupt(user_interrupts[8])
     );    
 
+    // Reserved for VGA
     tqvp_full_empty i_user_peri09(
         .clk(clk),
         .rst_n(rst_n_rebuf),
@@ -358,7 +359,41 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         .data_ready(data_ready_from_user_peri[9]),
 
         .user_interrupt(user_interrupts[9])
-    );    
+    );
+
+    tqvp_rebeccargb_intercal_alu i_user_peri10(
+        .clk(clk),
+        .rst_n(rst_n_rebuf),
+
+        .ui_in(ui_in),
+        .uo_out(uo_out_from_user_peri[10]),
+
+        .address(addr_in[5:0]),
+        .data_in(data_in),
+
+        .data_write_n(data_write_n    | {2{~peri_user[10]}}),
+        .data_read_n(data_read_n_peri | {2{~peri_user[10]}}),
+
+        .data_out(data_from_user_peri[10]),
+        .data_ready(data_ready_from_user_peri[10])
+    );
+
+    tqvp_full_empty_no_irq i_user_peri11(
+        .clk(clk),
+        .rst_n(rst_n_rebuf),
+
+        .ui_in(ui_in),
+        .uo_out(uo_out_from_user_peri[11]),
+
+        .address(addr_in[5:0]),
+        .data_in(data_in),
+
+        .data_write_n(data_write_n    | {2{~peri_user[11]}}),
+        .data_read_n(data_read_n_peri | {2{~peri_user[11]}}),
+
+        .data_out(data_from_user_peri[11]),
+        .data_ready(data_ready_from_user_peri[11])
+    );
 
     // --------------------------------------------------------------------- //
     // Byte interface peripherals
@@ -420,6 +455,66 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         .data_in(data_in[7:0]),
 
         .data_out(data_from_simple_peri[3])
+    );
+
+    tqvp_rebeccargb_hardware_utf8 i_simple_peri20(
+        .clk(clk),
+        .rst_n(rst_n_rebuf),
+
+        .ui_in(ui_in),
+        .uo_out(uo_out_from_simple_peri[4]),
+
+        .address(addr_in[3:0]),
+
+        .data_write((data_write_n != 2'b11) & peri_simple[4]),
+        .data_in(data_in[7:0]),
+
+        .data_out(data_from_simple_peri[4])
+    );
+
+    tqvp_byte_empty i_simple_peri21(
+        .clk(clk),
+        .rst_n(rst_n_rebuf),
+
+        .ui_in(ui_in),
+        .uo_out(uo_out_from_simple_peri[5]),
+
+        .address(addr_in[3:0]),
+
+        .data_write((data_write_n != 2'b11) & peri_simple[5]),
+        .data_in(data_in[7:0]),
+
+        .data_out(data_from_simple_peri[5])
+    );
+
+    tqvp_byte_empty i_simple_peri22(
+        .clk(clk),
+        .rst_n(rst_n_rebuf),
+
+        .ui_in(ui_in),
+        .uo_out(uo_out_from_simple_peri[6]),
+
+        .address(addr_in[3:0]),
+
+        .data_write((data_write_n != 2'b11) & peri_simple[6]),
+        .data_in(data_in[7:0]),
+
+        .data_out(data_from_simple_peri[6])
+    );
+
+    tqvp_byte_empty i_simple_peri23(
+        .clk(clk),
+        .rst_n(rst_n_rebuf),
+
+        .ui_in(ui_in),
+        .uo_out(uo_out_from_simple_peri[7]),
+
+        .address(addr_in[3:0]),
+
+        .data_write((data_write_n != 2'b11) & peri_simple[7]),
+        .data_in(data_in[7:0]),
+
+        .data_out(data_from_simple_peri[7])
     );
 
 endmodule

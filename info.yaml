@@ -5,10 +5,10 @@ project:
   discord:      "rebelmike"      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "A Risc-V SoC for Tiny Tapeout"      # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz:     38000000       # Clock frequency in Hz (or 0 if not applicable)
+  clock_hz:     32000000       # Clock frequency in Hz (or 0 if not applicable)
 
   # How many tiles your design occupies? A single tile is about 340x160 uM.
-  tiles: "4x4"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 3x4 or 4x4
+  tiles: "4x6"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 3x4 or 4x4
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
   top_module:  "tt_um_MichaelBell_tinyQV"
@@ -73,6 +73,9 @@ project:
     - "user_peripherals/pulse_transmitter/delay_2.v"
     - "user_peripherals/pulse_transmitter/simple_falling_edge_detector.v"
     - "user_peripherals/pulse_transmitter/simple_rising_edge_detector.v"
+    - "user_peripherals/intercal_alu/intercal-alu.v"
+    - "user_peripherals/intercal_alu/peripheral.v"
+    - "user_peripherals/hardware_utf8/hardware_utf8.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).

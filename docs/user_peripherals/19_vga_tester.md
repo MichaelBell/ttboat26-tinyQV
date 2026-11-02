@@ -2,7 +2,7 @@
 
 Author: htfab
 
-Peripheral index: 20
+Peripheral index: 19
 
 ## What it does
 

@@ -5,6 +5,7 @@
 *.fst.hier
 runs
 gds_render_preview.*
+gds_render.png
 src/user_config.json
 src/config_merged.json
 test/sim_build

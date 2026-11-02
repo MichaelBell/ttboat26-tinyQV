@@ -12,15 +12,19 @@ USER_PERIPHERAL_6 = CORDIC.test_trigonometric_simple \
 USER_PERIPHERAL_7 = tqvp_laurie_dwarf_line_table_accelerator.test
 USER_PERIPHERAL_8 = prism.test
 USER_PERIPHERAL_9 = 
-USER_PERIPHERAL_10 = 
+USER_PERIPHERAL_10 = intercal_alu.test
 USER_PERIPHERAL_11 = 
 USER_PERIPHERAL_12 = spi
 USER_PERIPHERAL_13 = ubcd.test
 USER_PERIPHERAL_14 = matt_pwm.test
 USER_PERIPHERAL_15 = vga_tester.test
+USER_PERIPHERAL_16 = hardware_utf8.test
+USER_PERIPHERAL_17 = 
+USER_PERIPHERAL_18 = 
+USER_PERIPHERAL_19 = 
 
 expand_tests = $(foreach num,$(1),$(USER_PERIPHERAL_$(num)))
-PERI_NUMBERS = $(shell seq 2 15)
+PERI_NUMBERS = $(shell seq 2 19)
 ALL_TESTS = $(call expand_tests,$(PERI_NUMBERS))
 
 .PHONY: clean core prog peri_test_% peri_num_% $(ALL_TESTS)

@@ -230,7 +230,7 @@ async def test_time_limit(dut):
     await send_instr(dut, InstructionLW(x1, x0, -0x100).encode())
     assert start_time+20 <= await read_reg(dut, x1) <= start_time+23
 
-#@cocotb.test()
+@cocotb.test()
 async def test_scratch_memory(dut):
     dut._log.info("Start")
     
@@ -244,7 +244,7 @@ async def test_scratch_memory(dut):
     await ClockCycles(dut.clk, 1)
     await start_read(dut, 0)
 
-    RAM_SIZE = 512
+    RAM_SIZE = 256
     RAM = [0]*RAM_SIZE
     for i in range(0, RAM_SIZE, 4):
         await send_instr(dut, InstructionADDI(x1, x0, i).encode())
@@ -1071,9 +1071,9 @@ async def test_random(dut):
     seed = random.randint(0, 0xFFFFFFFF)
     #seed = 2911169147
 
-    scratch_ram = False
+    scratch_ram = True
     if scratch_ram:
-        RAM_SIZE = 512
+        RAM_SIZE = 256
         RAM = []
         for i in range(0, RAM_SIZE, 4):
             val = random.randint(0, 0xFFFFFFFF)

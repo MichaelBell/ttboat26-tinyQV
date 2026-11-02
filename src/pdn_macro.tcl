@@ -148,3 +148,15 @@ foreach inst [$block getInsts] {
         }
     }
 }
+
+# For SRAM
+define_pdn_grid \
+    -macro \
+    -instances i_tinyqv.cpu.i_scratch.i_sram \
+    -name sram_grid \
+    -voltage_domain CORE \
+    -starts_with POWER
+
+add_pdn_connect \
+	-grid sram_grid \
+    -layers "Metal3 Metal4"

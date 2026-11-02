@@ -146,14 +146,14 @@
           "orientation": "S"
         }
       },
-      "gds": ["pdk_dir::libs.ref/gf180mcu_ocd_ip_sram/gds/gf180mcu_ocd_ip_sram__sram256x8m8wm1.gds"],
-      "lef": ["pdk_dir::libs.ref/gf180mcu_ocd_ip_sram/lef/gf180mcu_ocd_ip_sram__sram256x8m8wm1.lef"],
+      "gds": ["dir::../macros/sram/gf180mcu_ocd_ip_sram__sram256x8m8wm1.gds"],
+      "lef": ["dir::../macros/sram/gf180mcu_ocd_ip_sram__sram256x8m8wm1.lef"],
       "lib": {
-        "*_tt_025C_3v30": ["pdk_dir::libs.ref/gf180mcu_ocd_ip_sram/lib/gf180mcu_ocd_ip_sram__sram256x8m8wm1__tt_025C_3v30.lib"],
-        "*_ss_125C_3v00": ["pdk_dir::libs.ref/gf180mcu_ocd_ip_sram/lib/gf180mcu_ocd_ip_sram__sram256x8m8wm1__ss_125C_3v00.lib"],
-        "*_ff_n40C_3v60": ["pdk_dir::libs.ref/gf180mcu_ocd_ip_sram/lib/gf180mcu_ocd_ip_sram__sram256x8m8wm1__ff_n40C_3v60.lib"]
+        "*_tt_025C_3v30": ["dir::../macros/sram/gf180mcu_ocd_ip_sram__sram256x8m8wm1__tt_025C_3v30.lib"],
+        "*_ss_125C_3v00": ["dir::../macros/sram/gf180mcu_ocd_ip_sram__sram256x8m8wm1__ss_125C_3v00.lib"],
+        "*_ff_n40C_3v60": ["dir::../macros/sram/gf180mcu_ocd_ip_sram__sram256x8m8wm1__ff_n40C_3v60.lib"]
       },
-      "vh": ["pdk_dir::libs.ref/gf180mcu_ocd_ip_sram/verilog/gf180mcu_ocd_ip_sram__sram256x8m8wm1__blackbox_pp.v"]
+      "vh": ["dir::../macros/sram/gf180mcu_ocd_ip_sram__sram256x8m8wm1__blackbox_pp.v"]
     }
   },
   "EXTRA_VERILOG_MODELS": ["dir::user_peripherals/prism/cfgmem8x44.v"],

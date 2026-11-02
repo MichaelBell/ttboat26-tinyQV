@@ -109,7 +109,7 @@
   "//": "Only export pin area in LEF (without any connected nets)",
   "MAGIC_WRITE_LEF_PINONLY": 1,
 
-  "//": "PRISM State Information Table as a hard macro: CFGMEM8x44 (DFFRAM.librelane models/cfgmem_gf, 8 words x 44 bits of latches, 595.28 x 50.96 um), flush in the upper-right corner of the core (x 841.68..1436.96, y 682.08..733.04; the tile's pins are on the left half of the top edge). The macro's Metal4 power pins were built on the tile's stripe grid (VPWR at 19.68 + k x 38.87, VGND +3.3), and Project.ExtendPowerStripes (librelane_plugin_prism_macro.py, odb_stripes.py) runs the tile's stripes over them after pdngen; pdn_macro.tcl would add a stripe for any pin column off the grid (none here). src/user_peripherals/prism/cfgmem8x44.v is the behavioural model for simulation and lint.",
+  "//": "PRISM State Information Table as a hard macro: CFGMEM8x44 (DFFRAM.librelane models/cfgmem_gf, 8 words x 44 bits of latches, 585.76 x 50.96 um), flush in the upper-right corner of the core (x 851.20..1436.96, y 1093.68..1144.64; the tile's pins are on the left half of the top edge). The macro's Metal4 power pins were built on the tile's stripe grid (FP_PDN_V* above: VPWR at 4.22 + k x 37.25, VGND +1.78; rebuild the macro if they change), and Project.ExtendPowerStripes (librelane_plugin_prism_macro.py, odb_stripes.py) runs the tile's stripes over them after pdngen; pdn_macro.tcl would add a stripe for any pin column off the grid (none here). src/user_peripherals/prism/cfgmem8x44.v is the behavioural model for simulation and lint.",
   "MACROS": {
     "CFGMEM8x44": {
       "instances": {

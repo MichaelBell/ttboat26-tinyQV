@@ -8,18 +8,20 @@ DFFRAM compiler for `gf180mcu_fd_sc_mcu7t5v0`:
   (`models/cfgmem_gf`, `placeram/gf_cfgmem_data.py`, gf180 `block_definitions.v`)
 - 585.76 x 50.96 um, 11 rows (output nand4 row, 2 x 4 word rows, 2 aoi22
   read-out rows), 1353 cells (`balanced_decoder: true`, `ROW_END_MARGIN: 0`
-  in `models/cfgmem_gf/config.yml`); every pin on the bottom edge (Metal2), 15 VPWR
-  and 15 VGND Metal4 columns at the tile's stripe positions for the macro's
-  place in this tile (origin 851.20, 682.08: flush in the upper-right corner
-  of the core)
+  in `models/cfgmem_gf/config.yml`); every pin on the bottom edge (Metal2), 16 VPWR
+  and 16 VGND Metal4 columns (1.5 um, 0.28 um apart) at the tile's stripe
+  positions for the macro's place in this tile (origin 851.20, 1093.68: flush
+  in the upper-right corner of the core)
 - build (LibreLane nix shell, DFFRAM checkout):
 
       python3 dffram.py --manual-pdk -p gf180mcuD -s gf180mcu_fd_sc_mcu7t5v0 \
           -b cfgmem_gf --build-dir build_gf_cfg --products-dir products_gf_cfg \
-          --pdn-stripes 'VPWR:23.62:1.6,VGND:26.92:1.6,...,VPWR:567.80:1.6,VGND:571.10:1.6' 8x44
+          --pdn-stripes 'VPWR:9.77:1.5,VGND:11.55:1.5,...,VPWR:568.52:1.5,VGND:570.30:1.5' 8x44
 
-  (the stripe list is the tile's VPWR 19.68 + k x 38.87 and VGND +3.3 um,
-  relative to the macro origin; recompute it if the macro moves)
+  (the stripe list is the tile's grid, FP_PDN_VOFFSET 0.86 / VPITCH 37.25 /
+  VWIDTH 1.5 / VSPACING 0.28: VPWR centres at 4.22 + k x 37.25 and VGND
+  +1.78 um, relative to the macro origin; recompute it if the macro moves or
+  the grid changes.  Only x matters, so moving the macro vertically keeps it)
 - verification: routing / Magic DRC / LVS / antenna 0, the foundry KLayout
   DRC deck (all rules but density) and antenna deck 0, and `verification/cfgmem_gf` (Icarus, self-checking shift
   and read-back bench) ALL PASSED on the model and on `CFGMEM8x44.pnl.v`

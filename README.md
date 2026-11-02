@@ -6,21 +6,19 @@
 
 ## Build instructions
 
-Setup for [local hardening](https://tinytapeout.com/guides/local-hardening/), but clone tt-support-tools from https://github.com/MichaelBell/tt-support-tools and switch to the `gf180_9t` branch.
+Setup for [local hardening](https://tinytapeout.com/guides/local-hardening/).
 
-Run `ciel enable e8daeda73ca8f5814dbc0b11d1d05802251a3750` to install the gf180mcuD PDK.
+Either use the standard TT docker flow as described in the guide, with the 3.1.0.dev4 tag of librelane, or harden with a local librelane:
 
 Run `tt/tt_tool.py --create-user-config --gf`
 
-Outside of this repo directory, clone [librelane](https://github.com/librelane/librelane) and checkout the 3.0.14 tag.
-
-Edit `librelane/pdk_hashes.yaml` to use e8daeda73ca8f5814dbc0b11d1d05802251a3750 for gf180mcu.
+Outside of this repo directory, clone [librelane](https://github.com/librelane/librelane) and checkout the 3.1.0.dev4 tag.
 
 Follow the librelane [nix install guide](https://librelane.readthedocs.io/en/stable/installation/nix_installation/installation_linux.html)
 
 In the librelane directory, run `nix-shell` and check the librelane install with `librelane --smoke-test`
 
-Inside the nix shell, run `./harden.sh` in this repo.
+Inside the nix shell, run `./harden.sh` in this repo.  Remember to re-run `tt/tt_tool.py --create-user-config --gf` after any change to config.json.
 
 ## What is Tiny Tapeout?
 

@@ -10,6 +10,9 @@ PROG_FILE ?= $(PROG).hex
 SRC_DIR = $(PWD)/../src
 PROJECT_SOURCES = project.v peri*.v tinyQV/cpu/*.v tinyQV/peri/uart/*.v user_peripherals/*.v user_peripherals/*.sv user_peripherals/*/*.v user_peripherals/*/*.sv
 
+# Local copy of sram test verilog
+VERILOG_SOURCES += gf180mcu_ocd_ip_sram__sram256x8m8wm1.v
+
 VERILOG_SOURCES += sim_qspi.v
 COMPILE_ARGS +=  -DPROG_FILE=\"$(PROG_FILE)\"
 

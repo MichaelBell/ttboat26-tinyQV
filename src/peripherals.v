@@ -113,6 +113,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
     reg [NUM_USER_PERI-1:0] peri_user;
     reg [NUM_SIMPLE_PERI-1:0] peri_simple;
 
+    wire [9:6] peri_user_addr = addr_in[9:6] == 4'b1101 ? 4'b1100 : addr_in[9:6];
     always @(*) begin
         peri_user = 0;
         peri_simple = 0;
@@ -122,9 +123,9 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
             data_from_peri = {24'h0, data_from_simple_peri[addr_in[6:4]]};
             data_ready_from_peri = 1;
         end else begin
-            peri_user[addr_in[9:6]] = 1;
-            data_from_peri = data_from_user_peri[addr_in[9:6]];
-            data_ready_from_peri = data_ready_from_user_peri[addr_in[9:6]];
+            peri_user[peri_user_addr] = 1;
+            data_from_peri = data_from_user_peri[peri_user_addr];
+            data_ready_from_peri = data_ready_from_user_peri[peri_user_addr];
         end
     end
 
@@ -399,7 +400,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         .ui_in(ui_in),
         .uo_out(uo_out_from_user_peri[12]),
 
-        .address(addr_in[5:0]),
+        .address(addr_in[6:0]),
         .data_in(data_in),
 
         .data_write_n(data_write_n    | {2{~peri_user[12]}}),

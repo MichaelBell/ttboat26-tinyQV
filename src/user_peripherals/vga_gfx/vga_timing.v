@@ -10,22 +10,21 @@ module vga_timing_gfx (
     output reg [5:0] y_lo,
     output reg hsync,
     output reg vsync,
-    output wire blank
+    output reg blank
 );
 
-// 640x480 ~60Hz, (512x480 visible)
+// 800x600 ~60Hz
 
-`define H_FPORCH (36 * 16)
-`define H_SYNC   (37 * 16)
-`define H_BPORCH (43 * 16)
-`define H_NEXT   (45 * 16 + 15)
-`define H_RST    (60 * 16)
+`define H_FPORCH (50 * 16)
+`define H_SYNC   (52 * 16)
+`define H_BPORCH (57 * 16)
+`define H_RST    (0 * 16)
 
 `define V_ROLL   59
-`define V_FPORCH (8 * 64)
-`define V_SYNC   (8 * 64 + 10)
-`define V_BPORCH (8 * 64 + 12)
-`define V_NEXT   (8 * 64 + 34)
+`define V_FPORCH (10 * 64)
+`define V_SYNC   (10 * 64 + 3)
+`define V_BPORCH (10 * 64 + 7)
+`define V_NEXT   (10 * 64 + 23)
 
 always @(posedge clk) begin
     if (!rst_n) begin
@@ -34,12 +33,9 @@ always @(posedge clk) begin
         y_lo <= 0;
         hsync <= 0;
         vsync <= 0;
+        blank <= 1;
     end else begin
-        if (x == `H_NEXT) begin
-            x <= `H_RST;
-        end else begin
-            x <= x + 1;
-        end
+        x <= x + 1;
         if (x == `H_SYNC) begin
             if({y_hi, y_lo} == `V_NEXT) begin
                 y_hi <= 0;
@@ -53,10 +49,9 @@ always @(posedge clk) begin
         end
         // TODO: Check polarity
         hsync <= !(x >= `H_SYNC && x < `H_BPORCH);
-        vsync <= !({y_hi, y_lo} >= `V_SYNC && {y_hi, y_lo} < `V_BPORCH);
+        vsync <= ({y_hi, y_lo} >= `V_SYNC && {y_hi, y_lo} < `V_BPORCH);
+        blank <= (x >= `H_FPORCH || y_hi == 4'd10);
     end
 end
-
-assign blank = (x[9] || y_hi[3]);
 
 endmodule

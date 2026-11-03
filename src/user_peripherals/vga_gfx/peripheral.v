@@ -15,7 +15,7 @@ module tqvp_rebelmike_vga_gfx (
     output [7:0]  uo_out,       // The output PMOD.  Each wire is only connected if this peripheral is selected.
                                 // Note that uo_out[0] is normally used for UART TX.
 
-    input [5:0]   address,      // Address within this peripheral's address space
+    input [6:0]   address,      // Address within this peripheral's address space
     input [31:0]  data_in,      // Data in to the peripheral, bottom 8, 16 or all 32 bits are valid on write.
 
     // Data read and write requests from the TinyQV core.
@@ -69,14 +69,14 @@ module tqvp_rebelmike_vga_gfx (
         wen <= wen_p;
     end
 
-    // 64 bytes of latched pixel data
-    wire [31:0] pixel_data [0:15];
+    // 100 bytes of latched pixel data
+    wire [31:0] pixel_data [0:24];
     genvar i;
     generate
-        for (i = 0; i < 16; i = i+1) begin : gen_pixel_data
+        for (i = 0; i < 25; i = i+1) begin : gen_pixel_data
             vga_latch_config i_pixel_data(
                 .clk(clk),
-                .wen(wen && (address[5:2] == i) && address[1:0] == 2'b00),
+                .wen(wen && (address[6:2] == i) && address[1:0] == 2'b00),
                 .data_in({data_in[31:8], data_in_r}),
                 .data_out(pixel_data[i])
             );
@@ -85,12 +85,11 @@ module tqvp_rebelmike_vga_gfx (
 
     // Colour configuration
     wire [5:0] colour [0:3];
-    assign colour[0] = 6'h0;
     generate
-        for (i = 1; i < 4; i = i+1) begin : gen_colour_config
+        for (i = 0; i < 4; i = i+1) begin : gen_colour_config
             vga_latch_config #(.WIDTH(6)) i_colour(
                 .clk(clk),
-                .wen(wen && (address == i+4)),
+                .wen(wen && (address == i + 7'h68)),
                 .data_in(data_in_r[5:0]),
                 .data_out(colour[i])
             );
@@ -102,7 +101,7 @@ module tqvp_rebelmike_vga_gfx (
     wire [1:0] interrupt_x_offset;
     vga_latch_config #(.WIDTH(4)) i_interrupt_cfg(
         .clk(clk),
-        .wen(wen && (address == 6'h1)),
+        .wen(wen && (address == 7'h64)),
         .data_in(data_in_r[3:0]),
         .data_out({interrupt_x_offset, interrupt_y_mask})
     );
@@ -115,11 +114,11 @@ module tqvp_rebelmike_vga_gfx (
             interrupt <= 0;
             interrupt_lock <= 0;
         end else begin
-            if (wen && (address == 6'h1)) interrupt_lock <= 1;
-            if (is_read_txn && address == 6'h1) begin
+            if (wen && (address == 7'h64)) interrupt_lock <= 1;
+            if (is_read_txn && address == 7'h64) begin
                 interrupt <= 0;
             end else if (interrupt_lock && ((vga_y_lo[1:0] | interrupt_y_mask) == 2'h3)) begin
-                if (vga_x == {interrupt_x_offset == 2'b00, interrupt_x_offset, 7'h0}) begin
+                if (vga_x == {interrupt_x_offset, 8'h20}) begin
                     interrupt <= 1;
                 end
             end
@@ -128,14 +127,24 @@ module tqvp_rebelmike_vga_gfx (
 
     assign user_interrupt = interrupt;
 
+    reg pixel_quadruple;
+    always @(posedge clk) begin
+        if (!rst_n) begin
+            pixel_quadruple <= 0;
+        end else begin
+            if (wen && (address == 7'h65)) pixel_quadruple <= data_in[0];
+        end
+    end
+
     // Colour output
     reg [1:0] idx_out;
     wire [5:0] colour_out;
+    wire [9:1] vga_addr = pixel_quadruple ? {1'b0, vga_x[9:2]} : vga_x[9:1];
     always @(posedge clk) begin
-        idx_out <= vga_blank ? 2'h0 : pixel_data[vga_x[8:5]][{vga_x[4:1], 1'b0} +: 2];
+        idx_out <= pixel_data[vga_addr[9:5]][{vga_addr[4:1], 1'b0} +: 2];
     end
 
-    assign colour_out = colour[idx_out];
+    assign colour_out = vga_blank ? 6'h0 : colour[idx_out];
 
     // Connect outputs
     assign uo_out = {vga_hsync, colour_out[0], colour_out[2], colour_out[4],
@@ -143,13 +152,15 @@ module tqvp_rebelmike_vga_gfx (
 
     // Data output
     assign data_ready = 1'b1;
-    assign data_out = (address[1:0] == 2'b00) ? pixel_data[address[5:2]] :
-                      (address == 6'h1) ? {26'h0, interrupt_x_offset, interrupt_y_mask} :
-                      (address == 6'h2) ? {19'h0, vga_y_hi, 2'h0, vga_y_lo} :
-                      (address == 6'h3) ? {27'h0, vga_y_hi} :
-                      (address == 6'h5) ? {26'h0, colour[1]} :
-                      (address == 6'h6) ? {26'h0, colour[2]} :
-                      (address == 6'h7) ? {26'h0, colour[3]} :
+    assign data_out = (address[1:0] == 2'b00 && address[6:2] < 5'h11) ? pixel_data[address[6:2]] :
+                      (address == 7'h64) ? {26'h0, interrupt_x_offset, interrupt_y_mask} :
+                      (address == 7'h65) ? {31'h0, pixel_quadruple} :
+                      (address == 7'h66) ? {19'h0, vga_y_hi, 2'h0, vga_y_lo} :
+                      (address == 7'h67) ? {27'h0, vga_y_hi} :
+                      (address == 7'h68) ? {26'h0, colour[0]} :
+                      (address == 7'h69) ? {26'h0, colour[1]} :
+                      (address == 7'h6a) ? {26'h0, colour[2]} :
+                      (address == 7'h6b) ? {26'h0, colour[3]} :
                       32'h0;
 
     // List all unused inputs to prevent warnings

@@ -12,18 +12,25 @@ from tqv import TinyQV
 # The peripheral number is not used by the test harness.
 PERIPHERAL_NUM = 12
 
+REG_INTERRUPT = 100
+REG_QUADRUPLE = 101
+REG_Y = 102
+REG_Y_HI = 103
+REG_COLOUR = 104
+
 async def reset_all_registers(tqv):
-    for i in range(0, 64, 4):
+    for i in range(0, 100, 4):
         await tqv.write_word_reg(i, 0)
 
     # Interrupt every 4th line at the end of the line
     tqv.peripheral_num = 9
-    await tqv.write_byte_reg(1, 0x0)
+    await tqv.write_byte_reg(REG_INTERRUPT, 0x0)
         
     # Colours are red, green and blue
-    await tqv.write_byte_reg(5, 0x30)
-    await tqv.write_byte_reg(6, 0x0c)
-    await tqv.write_byte_reg(7, 0x03)
+    await tqv.write_byte_reg(REG_COLOUR + 0, 0x00)
+    await tqv.write_byte_reg(REG_COLOUR + 1, 0x30)
+    await tqv.write_byte_reg(REG_COLOUR + 2, 0x0c)
+    await tqv.write_byte_reg(REG_COLOUR + 3, 0x03)
 
 @cocotb.test()
 async def test_project(dut):
@@ -53,30 +60,30 @@ async def test_project(dut):
     assert await tqv.read_hword_reg(0) == 0x5678
     assert await tqv.read_word_reg(0) == 0x82345678
 
-    # Wait for line 4
+    # Wait for line 8
     while True:
-        y_low = await tqv.read_byte_reg(2)
-        assert y_low <= 4
-        if y_low == 4: break
+        y_low = await tqv.read_byte_reg(REG_Y)
+        assert y_low <= 8
+        if y_low == 8: break
 
     # Clear and then wait for interrupt
-    await tqv.read_byte_reg(1)
-    await tqv.write_byte_reg(1, 0x4)
+    await tqv.read_byte_reg(REG_INTERRUPT)
+    await tqv.write_byte_reg(REG_INTERRUPT, 0x8)
 
     while True:
-        y_low = await tqv.read_byte_reg(2)
-        assert y_low < 8
+        y_low = await tqv.read_byte_reg(REG_Y)
+        assert y_low < 12
         interrupt_asserted = await tqv.is_interrupt_asserted()
-        if y_low < 7: assert not interrupt_asserted
+        if y_low < 11: assert not interrupt_asserted
         if interrupt_asserted: break
         await ClockCycles(dut.clk, 64)
 
     # Read interrupt reg to clear
-    assert await tqv.read_byte_reg(1) == 0x4
+    assert await tqv.read_byte_reg(REG_INTERRUPT) == 0x8
     assert not await tqv.is_interrupt_asserted()
 
     # Check colour generation
-    for i in range(0, 64, 4):
+    for i in range(0, 100, 4):
         await tqv.write_word_reg(i, 0x39393939)
 
     # Wait for hsync
@@ -88,7 +95,7 @@ async def test_project(dut):
         assert dut.uo_out[6].value == 0
         assert dut.uo_out[5].value == 0
         assert dut.uo_out[4].value == 0
-        assert dut.uo_out[3].value == 1
+        assert dut.uo_out[3].value == 0
         assert dut.uo_out[2].value == 0
         assert dut.uo_out[1].value == 0
         assert dut.uo_out[0].value == 0
@@ -98,29 +105,29 @@ async def test_project(dut):
     for k in range(3):
         # Should now be 112 clocks before the first pixel
         for i in range(112):
-            assert dut.uo_out.value == 0b10001000
+            assert dut.uo_out.value == 0b10000000
             await ClockCycles(dut.clk, 1)
 
-        for i in range(0, 512, 8):
+        for i in range(0, 800, 8):
             for j in range(2):
-                assert dut.uo_out.value == 0b10011001 # Red
+                assert dut.uo_out.value == 0b10010001 # Red
                 await ClockCycles(dut.clk, 1)
             for j in range(2):
-                assert dut.uo_out.value == 0b10101010 # Green
+                assert dut.uo_out.value == 0b10100010 # Green
                 await ClockCycles(dut.clk, 1)
             for j in range(2):
-                assert dut.uo_out.value == 0b11001100 # Blue
+                assert dut.uo_out.value == 0b11000100 # Blue
                 await ClockCycles(dut.clk, 1)
             for j in range(2):
-                assert dut.uo_out.value == 0b10001000 # Black
+                assert dut.uo_out.value == 0b10000000 # Black
                 await ClockCycles(dut.clk, 1)
 
-        # Should now be 80 clocks before sync
+        # Should now be 32 clocks before sync
+        for i in range(32):
+            assert dut.uo_out.value == 0b10000000
+            await ClockCycles(dut.clk, 1)
+
+        # Should now be 80 clocks of sync
         for i in range(80):
-            assert dut.uo_out.value == 0b10001000
-            await ClockCycles(dut.clk, 1)
-
-        # Should now be 96 clocks of sync
-        for i in range(96):
-            assert dut.uo_out.value == 0b00001000
+            assert dut.uo_out.value == 0b00000000
             await ClockCycles(dut.clk, 1)

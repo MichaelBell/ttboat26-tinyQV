@@ -14,17 +14,21 @@ USER_PERIPHERAL_8 = prism.test
 USER_PERIPHERAL_9 = 
 USER_PERIPHERAL_10 = intercal_alu.test
 USER_PERIPHERAL_11 = 
-USER_PERIPHERAL_12 = spi
-USER_PERIPHERAL_13 = ubcd.test
-USER_PERIPHERAL_14 = matt_pwm.test
-USER_PERIPHERAL_15 = vga_tester.test
-USER_PERIPHERAL_16 = hardware_utf8.test
-USER_PERIPHERAL_17 = 
-USER_PERIPHERAL_18 = 
-USER_PERIPHERAL_19 = 
+USER_PERIPHERAL_12 = vga_gfx.test
+USER_PERIPHERAL_13 = 
+USER_PERIPHERAL_14 = 
+USER_PERIPHERAL_15 = 
+USER_PERIPHERAL_16 = spi
+USER_PERIPHERAL_17 = ubcd.test
+USER_PERIPHERAL_18 = matt_pwm.test
+USER_PERIPHERAL_19 = vga_tester.test
+USER_PERIPHERAL_20 = hardware_utf8.test
+USER_PERIPHERAL_21 = 
+USER_PERIPHERAL_22 = 
+USER_PERIPHERAL_23 = 
 
 expand_tests = $(foreach num,$(1),$(USER_PERIPHERAL_$(num)))
-PERI_NUMBERS = $(shell seq 2 19)
+PERI_NUMBERS = $(shell seq 2 23)
 ALL_TESTS = $(call expand_tests,$(PERI_NUMBERS))
 
 .PHONY: clean core prog peri_test_% peri_num_% $(ALL_TESTS)

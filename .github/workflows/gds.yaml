@@ -51,6 +51,13 @@ jobs:
           - peri_num_14
           - peri_num_15
           - peri_num_16
+          - peri_num_17
+          - peri_num_18
+          - peri_num_19
+          - peri_num_20
+          - peri_num_21
+          - peri_num_22
+          - peri_num_23
       fail-fast: false
     runs-on: ubuntu-24.04
     steps:

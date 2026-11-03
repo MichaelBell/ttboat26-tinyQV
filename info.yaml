@@ -76,6 +76,9 @@ project:
     - "user_peripherals/intercal_alu/intercal-alu.v"
     - "user_peripherals/intercal_alu/peripheral.v"
     - "user_peripherals/hardware_utf8/hardware_utf8.v"
+    - "user_peripherals/vga_gfx/peripheral.v"
+    - "user_peripherals/vga_gfx/vga_timing.v"
+    - "user_peripherals/vga_gfx/latch_config.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).

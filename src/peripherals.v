@@ -40,7 +40,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
     output [9:2] user_interrupts  // User peripherals get interrupts 2-6
 );
 
-    localparam NUM_USER_PERI = 12;
+    localparam NUM_USER_PERI = 13;
     localparam NUM_SIMPLE_PERI = 8;
 
     // Registered data out to TinyQV
@@ -341,8 +341,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         .user_interrupt(user_interrupts[8])
     );    
 
-    // Reserved for VGA
-    tqvp_full_empty i_user_peri09(
+    tqvp_full_empty_no_irq i_user_peri09(
         .clk(clk),
         .rst_n(rst_n_rebuf),
 
@@ -356,9 +355,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         .data_read_n(data_read_n_peri | {2{~peri_user[9]}}),
 
         .data_out(data_from_user_peri[9]),
-        .data_ready(data_ready_from_user_peri[9]),
-
-        .user_interrupt(user_interrupts[9])
+        .data_ready(data_ready_from_user_peri[9])
     );
 
     tqvp_rebeccargb_intercal_alu i_user_peri10(
@@ -393,6 +390,25 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
 
         .data_out(data_from_user_peri[11]),
         .data_ready(data_ready_from_user_peri[11])
+    );
+
+    tqvp_rebelmike_vga_gfx i_user_peri12(
+        .clk(clk),
+        .rst_n(rst_n_rebuf),
+
+        .ui_in(ui_in),
+        .uo_out(uo_out_from_user_peri[12]),
+
+        .address(addr_in[5:0]),
+        .data_in(data_in),
+
+        .data_write_n(data_write_n    | {2{~peri_user[12]}}),
+        .data_read_n(data_read_n_peri | {2{~peri_user[12]}}),
+
+        .data_out(data_from_user_peri[12]),
+        .data_ready(data_ready_from_user_peri[12]),
+
+        .user_interrupt(user_interrupts[9])
     );
 
     // --------------------------------------------------------------------- //

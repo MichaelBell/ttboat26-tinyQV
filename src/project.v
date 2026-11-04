@@ -125,6 +125,9 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=32000) (
 `ifdef SIM
     reg rst_reg_n;
     always @(negedge clk) rst_reg_n <= rst_n & setup_done;
+`elsif SYNTH_FPGA
+    reg rst_reg_n;
+    always @(negedge clk) rst_reg_n <= rst_n & setup_done;
 `else
     wire rst_reg_n;
     (* keep *)

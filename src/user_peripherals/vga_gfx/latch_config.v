@@ -25,6 +25,14 @@ module vga_latch_config #(
     assign data_out = state;
 
     wire _unused = &{clk, 1'b0};
+`elsif SYNTH_FPGA
+    reg [WIDTH-1:0] state;
+
+    always @(posedge clk) begin
+        if (wen) state <= data_in;
+    end
+
+    assign data_out = state;
 
 `else
     /* verilator lint_off PINMISSING */

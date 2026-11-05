@@ -5,18 +5,11 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles
 
-from tqv import TinyQV
-
-# When submitting your design, change this to the peripheral number
-# in peripherals.v.  e.g. if your design is i_user_peri05, set this to 5.
-# The peripheral number is not used by the test harness.
-PERIPHERAL_NUM = 5
-
-INTERFACE_REGISTER_SHIFT = 0
+USE_EXT_AMP = 1
 
 def read_pwm_out(dut):
-	data = dut.uo_out.value.integer
-	assert data == 0 or data == 255
+	data = dut.uio_out.value.integer & 0xc0
+	assert data == 0 or data == 0xc0
 	return data != 0
 
 async def read_pwm_run(dut, level, max_len=64):
@@ -51,42 +44,64 @@ CMD_DATA_LOW = 1
 
 READ_WAITING = 32
 
-reg_bits = [14, 6, 8, 8, 8, 16, 13, 13, 12, 13, 16]
+reg_bits = [16, 8, 8, 8, 8, 16, 13, 13, 12, 13, 16]
 
-async def reg_write(tqv, addr, value):
-	if reg_bits[addr>>2] + INTERFACE_REGISTER_SHIFT > 16:
-		await tqv.write_word_reg(remap_addr(addr), value << INTERFACE_REGISTER_SHIFT)
-	else:
-		await tqv.write_hword_reg(remap_addr(addr), value << INTERFACE_REGISTER_SHIFT)
+async def reg_write(dut, addr, value):
+	bits = reg_bits[addr>>2]
 
-async def reg_read(tqv, addr):
-	if reg_bits[addr>>2] + INTERFACE_REGISTER_SHIFT > 16:
-		return await tqv.read_word_reg(remap_addr(addr)) >> INTERFACE_REGISTER_SHIFT
-	else:
-		return await tqv.read_hword_reg(remap_addr(addr)) >> INTERFACE_REGISTER_SHIFT
+	dut.ui_in.value = value & 0xff
+	dut.uio_in.value = CMD_DATA_LOW
+	await ClockCycles(dut.clk, 3)
 
+	if bits > 8:
+		dut.ui_in.value = (value >> 8) & 0xff
+		dut.uio_in.value = CMD_DATA_HIGH
+		await ClockCycles(dut.clk, 3)
+
+	dut.ui_in.value = remap_addr(addr)
+	dut.uio_in.value = CMD_WRITE
+	await ClockCycles(dut.clk, 3)
+
+	# wait for the write to take effect
+	await ClockCycles(dut.clk, 4)
+
+
+async def reg_read(dut, addr):
+	bits = reg_bits[addr>>2]
+
+	dut.ui_in.value = remap_addr(addr)
+	dut.uio_in.value = CMD_READ
+	await ClockCycles(dut.clk, 4)
+
+	wait_counter = 0
+	while (dut.uio_out.value.integer & READ_WAITING) != 0:
+		await ClockCycles(dut.clk, 1)
+		wait_counter += 1
+		assert wait_counter < 70
+
+	data = dut.uo_out.value.integer
+	dut.uio_in.value = READ_SEL_HIGH
+	await ClockCycles(dut.clk, 1)
+	data |= dut.uo_out.value.integer << 8
+
+	return data
 
 @cocotb.test()
 async def test_project(dut):
 	dut._log.info("Start")
 
 	# Set the clock period to 100 ns (10 MHz)
-	clock = Clock(dut.clk, 100, unit="ns")
+	clock = Clock(dut.clk, 100, units="ns")
 	cocotb.start_soon(clock.start())
 
-	# Interact with your design's registers through this TinyQV class.
-	# This will allow the same test to be run when your design is integrated
-	# with TinyQV - the implementation of this class will be replaces with a
-	# different version that uses Risc-V instructions instead of the SPI test
-	# harness interface to read and write the registers.
-	tqv = TinyQV(dut, PERIPHERAL_NUM)
-
-	# Reset
-	await tqv.reset()
+	dut.uio_in.value = 0
+	dut.rst_n.value = 0
+	await ClockCycles(dut.clk, 10)
+	dut.rst_n.value = 1
 
 	dut._log.info("Test project behavior: PWL Synth")
 
-	nbits = [14, 6, 8, 8, 8, 16]
+	nbits = [16, 8, 8, 8, 8, 16]
 
 	dut._log.info("Check initial PWM output")
 	await ClockCycles(dut.clk, 100)
@@ -99,41 +114,53 @@ async def test_project(dut):
 		n_high, n_total = await read_pwm_duty(dut, True)
 		assert (n_high, n_total) == (n_high_0, n_total_0)
 
-	# Write and read back top bits of detune_counter just to put a nonzero value into read_msbs_reg
-	await reg_write(tqv, 4*10+1, 0x4000)
-	await reg_read(tqv, 4*10+1)
+	for ext_amp in range(1+USE_EXT_AMP):
+		if (ext_amp == 1): dut._log.info("Check again with ext_amp enabled:")
+		await reg_write(dut, 4*9+2, ext_amp<<13) # cfg
 
-	# Test register write and read back
-	dut._log.info("Test register write and read back")
-	for i in range(24):
-		#print("i =", i)
-		data_in = (0x1234 + i*0x1111)&0xffff
-		await reg_write(tqv, i, data_in)
-		if i < 20:
-			data_out = await reg_read(tqv, i)
-			expected = data_in & ((1 << nbits[i>>2]) - 1)
+		# Write and read back top bits of detune_counter just to put a nonzero value into read_msbs_reg
+		await reg_write(dut, 4*10+1, 0x4000)
+		await reg_read(dut, 4*10+1)
+
+		# Test register write and read back
+		dut._log.info("Test register write and read back")
+		await ClockCycles(dut.clk, 4)
+		for i in range(24):
+			#print("i =", i)
+			data_in = (0x1234 + i*0x1111)&0xffff
+			await reg_write(dut, i, data_in)
+			if i < 20:
+				data_out = await reg_read(dut, i)
+				nb = nbits[i>>2]
+				if (i>>2) == 1 and ext_amp == 0: nb = 6
+				expected = data_in & ((1 << nb) - 1)
+				#print("data_out =", hex(data_out), "expected =", hex(expected))
+				assert data_out == expected
+
+		# Test reading back the registers again
+		dut._log.info("Test reading back the registers again")
+		for i in range(20):
+			#print("i =", i)
+			data_in = (0x1234 + i*0x1111)&0xffff
+			data_out = await reg_read(dut, i)
+			nb = nbits[i>>2]
+			if (i>>2) == 1 and ext_amp == 0: nb = 6
+			expected = data_in & ((1 << nb) - 1)
 			#print("data_out =", hex(data_out), "expected =", hex(expected))
 			assert data_out == expected
 
-	# Test reading back the registers again
-	dut._log.info("Test reading back the registers again")
-	for i in range(20):
-		#print("i =", i)
-		data_in = (0x1234 + i*0x1111)&0xffff
-		data_out = await reg_read(tqv, i)
-		expected = data_in & ((1 << nbits[i>>2]) - 1)
-		#print("data_out =", hex(data_out), "expected =", hex(expected))
-		assert data_out == expected
+		# Check that not all PWM output samples remain at the zero level now that the amp registers are nonzero
+		dut._log.info("Check PWM output when synth is running")
+		ok = False
+		for i in range(10):
+			n_high, n_total = await read_pwm_duty(dut, i > 0)
+			#print("n_high =", n_high)
+			assert n_total == n_total_0
+			if n_high != n_high_0: ok = True
+		assert ok
 
-	# Check that not all PWM output samples remain at the zero level now that the amp registers are nonzero
-	dut._log.info("Check PWM output when synth is running")
-	ok = False
-	for i in range(10):
-		n_high, n_total = await read_pwm_duty(dut, i > 0)
-		#print("n_high =", n_high)
-		assert n_total == n_total_0
-		if n_high != n_high_0: ok = True
-	assert ok
+	ext_amp = 0
+	await reg_write(dut, 4*9+2, ext_amp << 13) # cfg
 
 	# Apply sweep values
 	dut._log.info("Apply sweeps")
@@ -157,7 +184,7 @@ async def test_project(dut):
 		 1,  1,  0, -1
 	]
 	for (i, sweep) in enumerate(sweeps):
-		await reg_write(tqv, 24+i, sweep)
+		await reg_write(dut, 24+i, sweep)
 
 	# Check that not all PWM output samples remain at the zero level now that the amp registers are nonzero
 	dut._log.info("Check PWM output again and wait for sweeps to take effect")
@@ -172,20 +199,22 @@ async def test_project(dut):
 	dut._log.info("Check effect of sweeps")
 	for (i, dir) in enumerate(sweep_dirs):
 		data_in = (0x1234 + i*0x1111)&0xffff
-		data_out = await reg_read(tqv, i)
-		expected = data_in & ((1 << nbits[i>>2]) - 1)
+		data_out = await reg_read(dut, i)
+		nb = nbits[i>>2]
+		if (i>>2) == 1 and ext_amp == 0: nb = 6
+		expected = data_in & ((1 << nb) - 1)
 		if   dir == 0: assert data_out == expected
 		elif dir  < 0: assert data_out  < expected
 		elif dir  > 0: assert data_out  > expected
 
 	# restore sweeps to zero
 	for (i, sweep) in enumerate(sweeps):
-		await reg_write(tqv, 24+i, 0)
+		await reg_write(dut, 24+i, 0)
 
 	dut._log.info("Check PWM output when all amplitudes are zero")
 
 	# Restore the amp registers to zero
-	for i in range(4): await reg_write(tqv, 4+i, 0)
+	for i in range(4): await reg_write(dut, 4+i, 0)
 	await ClockCycles(dut.clk, 64) # wait for amps to take effect
 
 	# Check that the PWM output samples are back at the zero level
@@ -198,15 +227,12 @@ async def test_project(dut):
 	for i in range(2):
 		if i == 1:
 			dut._log.info("Turn off detune_counter incrementation")
-			await reg_write(tqv, 4*9+2, 0) # cfg
+			await reg_write(dut, 4*9+2, 0) # cfg
 
-		await reg_write(tqv, 4*10, detune_counter & 0xffff)
-		await reg_write(tqv, 4*10+1, (detune_counter>>16) & 0xffff)
+		await reg_write(dut, 4*10, detune_counter & 0xffff)
+		await reg_write(dut, 4*10+1, (detune_counter>>16) & 0xffff)
 		dut._log.info("Wrote detune_counter = " + hex(detune_counter))
-		dc_read = (await reg_read(tqv, 4*10)) | ((await reg_read(tqv, 4*10+1))<<16)
+		dc_read = (await reg_read(dut, 4*10)) | ((await reg_read(dut, 4*10+1))<<16)
 		dut._log.info("Read detune_counter = " + hex(dc_read))
 
 		if i == 1: assert dc_read == detune_counter
-
-
-	assert not await tqv.is_interrupt_asserted()

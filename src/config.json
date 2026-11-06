@@ -20,8 +20,7 @@
 
   "//": "PL_TARGET_DENSITY_PCT - You can increase this if Global Placement fails with error GPL-0302.",
   "//": "Users have reported that values up to 80 worked well for them.",
-  "//": "66: with the PRISM SIT macro in the upper-right corner, 65 placed the core's output-mux paths 1 to 2 ns short at max_tt (upstream's margin there was +0.54 ns) while 66 met every corner the resizer repairs; the target density is the placement seed here, the standard-cell utilization is 64 % either way.",
-  "PL_TARGET_DENSITY_PCT": 66,
+  "PL_TARGET_DENSITY_PCT": 65,
 
   "//": "CLOCK_PERIOD - Increase this in case you are getting setup time violations.",
   "//": "The value is in nanoseconds, so 20ns == 50MHz.",

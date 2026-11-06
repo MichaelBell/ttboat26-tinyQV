@@ -45,6 +45,8 @@
 `define USE_QUANTIZATION_LEVEL
 `define USE_DETUNE_COUNTER
 `define USE_LINEAR_NOISE
+`define USE_TEMP_REGISTER
+`define USE_EXT_AMP
 
 
 `define USE_MORE_REG_RESETS
@@ -72,6 +74,28 @@
 `define USE_X2N_FLAGS_OR_PITCH_DOUBLER
 `endif
 
+`ifdef USE_ORION_WAVE
+`define USE_EXTRA_SRC1_BIT
+`endif
+`ifdef USE_TEMP_REGISTER
+`define USE_EXTRA_SRC1_BIT
+`endif
+
+`ifdef USE_TEMP_REGISTER
+`define OUTPUT_BITS 12
+`define OUT_ACC_BITS 13
+`else
+`define OUTPUT_BITS 10
+`define OUT_ACC_BITS 12
+`endif
+
+`define PWL_BASE_BITS 12
+`define PWM_RES_BITS 6
+
+`define OUT_ACC_FRAC_BITS (`OUTPUT_BITS - `PWM_RES_BITS)
+
+
+
 `define REGS_PER_CHANNEL 8
 `define REG_BITS 16 // Could be 13? If the registers don't grow too much
 
@@ -83,7 +107,8 @@
 `define CFG_BIT_DETUNE_STEP0 3
 `define CFG_DETUNE_STEP_BITS 9
 `define CFG_BIT_LINEAR_NOISE 12
-`define CFG_BITS 13
+`define CFG_BIT_EXT_AMP 13
+`define CFG_BITS 14
 
 
 // 0-2: detune_exp
@@ -105,7 +130,13 @@
 
 
 `define PMODE_BIT_DOUBLE_PITCH 0
+`ifndef USE_EXT_AMP
 `define PMODE_BITS 1
+`else
+`define PMODE_BIT_N_CLAMP0 1
+`define PMODE_BIT_N_CLAMP1 2
+`define PMODE_BITS 3
+`endif
 
 
 `define CHANNEL_MODE_FLAGS_OSC_SYNC_MASK ((1<<`CHANNEL_MODE_BIT_OSC_SYNC_EN)|(1<<`CHANNEL_MODE_BIT_OSC_SYNC_SOFT))
@@ -127,7 +158,7 @@
 `define DETUNE_SRC_CONTROL_BIT_LOW_OVERIDE_EN  2
 
 
-`ifdef USE_ORION_WAVE
+`ifdef USE_EXTRA_SRC1_BIT
 `define SRC1_SEL_BITS 4
 `else
 `define SRC1_SEL_BITS 3
@@ -143,6 +174,9 @@
 `ifdef USE_ORION_WAVE
 `define SRC1_SEL_ACC          4'd8
 `define SRC1_SEL_LIN_NOISE_PHASE 4'd9
+`endif
+`ifdef USE_TEMP_REGISTER
+`define SRC1_SEL_TEMP_SEXT    4'd10
 `endif
 
 `ifdef USE_DETUNE_COUNTER
@@ -162,15 +196,26 @@
 `ifdef USE_LINEAR_NOISE
 `define SRC2_SEL_LIN_NOISE_RAMP 3'd7
 `endif
+`ifdef USE_TEMP_REGISTER
+`define SRC2_SEL_ACC_SEXT     4'd8
+`define SRC2_SEL_TEMP_SEXT    4'd9
+`endif
 `ifdef USE_DETUNE_COUNTER
-`define SRC2_SEL_OCT_COUNTER_LOW  4'd8
-`define SRC2_SEL_OCT_COUNTER_HIGH 4'd9
+`define SRC2_SEL_OCT_COUNTER_LOW  4'd10
+`define SRC2_SEL_OCT_COUNTER_HIGH 4'd11
 `endif
 
-`define DEST_SEL_BITS 2
+
 `define DEST_SEL_NOTHING 2'd0
 `define DEST_SEL_ACC     2'd1
 `define DEST_SEL_OUT_ACC 2'd2
+`ifdef USE_TEMP_REGISTER
+`define DEST_SEL_TEMP     4'd4
+`define DEST_SEL_TEMP_ALT 4'd8
+`define DEST_SEL_BITS 4
+`else
+`define DEST_SEL_BITS 2
+`endif
 
 
 `define STATE_CMP_REV_PHASE 0

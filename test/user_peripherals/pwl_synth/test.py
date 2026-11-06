@@ -13,6 +13,7 @@ from tqv import TinyQV
 PERIPHERAL_NUM = 5
 
 INTERFACE_REGISTER_SHIFT = 0
+USE_EXT_AMP = 1
 
 def read_pwm_out(dut):
 	data = dut.uo_out.value.integer
@@ -51,7 +52,7 @@ CMD_DATA_LOW = 1
 
 READ_WAITING = 32
 
-reg_bits = [14, 6, 8, 8, 8, 16, 13, 13, 12, 13, 16]
+reg_bits = [16, 8, 8, 8, 8, 16, 13, 13, 12, 13, 16]
 
 async def reg_write(tqv, addr, value):
 	if reg_bits[addr>>2] + INTERFACE_REGISTER_SHIFT > 16:
@@ -86,7 +87,7 @@ async def test_project(dut):
 
 	dut._log.info("Test project behavior: PWL Synth")
 
-	nbits = [14, 6, 8, 8, 8, 16]
+	nbits = [16, 8, 8, 8, 8, 16]
 
 	dut._log.info("Check initial PWM output")
 	await ClockCycles(dut.clk, 100)
@@ -99,41 +100,53 @@ async def test_project(dut):
 		n_high, n_total = await read_pwm_duty(dut, True)
 		assert (n_high, n_total) == (n_high_0, n_total_0)
 
-	# Write and read back top bits of detune_counter just to put a nonzero value into read_msbs_reg
-	await reg_write(tqv, 4*10+1, 0x4000)
-	await reg_read(tqv, 4*10+1)
+	for ext_amp in range(1+USE_EXT_AMP):
+		if (ext_amp == 1): dut._log.info("Check again with ext_amp enabled:")
+		await reg_write(tqv, 4*9+2, ext_amp<<13) # cfg
 
-	# Test register write and read back
-	dut._log.info("Test register write and read back")
-	for i in range(24):
-		#print("i =", i)
-		data_in = (0x1234 + i*0x1111)&0xffff
-		await reg_write(tqv, i, data_in)
-		if i < 20:
+		# Write and read back top bits of detune_counter just to put a nonzero value into read_msbs_reg
+		await reg_write(tqv, 4*10+1, 0x4000)
+		await reg_read(tqv, 4*10+1)
+
+		# Test register write and read back
+		dut._log.info("Test register write and read back")
+		await ClockCycles(dut.clk, 4)
+		for i in range(24):
+			#print("i =", i)
+			data_in = (0x1234 + i*0x1111)&0xffff
+			await reg_write(tqv, i, data_in)
+			if i < 20:
+				data_out = await reg_read(tqv, i)
+				nb = nbits[i>>2]
+				if (i>>2) == 1 and ext_amp == 0: nb = 6
+				expected = data_in & ((1 << nb) - 1)
+				#print("data_out =", hex(data_out), "expected =", hex(expected))
+				assert data_out == expected
+
+		# Test reading back the registers again
+		dut._log.info("Test reading back the registers again")
+		for i in range(20):
+			#print("i =", i)
+			data_in = (0x1234 + i*0x1111)&0xffff
 			data_out = await reg_read(tqv, i)
-			expected = data_in & ((1 << nbits[i>>2]) - 1)
+			nb = nbits[i>>2]
+			if (i>>2) == 1 and ext_amp == 0: nb = 6
+			expected = data_in & ((1 << nb) - 1)
 			#print("data_out =", hex(data_out), "expected =", hex(expected))
 			assert data_out == expected
 
-	# Test reading back the registers again
-	dut._log.info("Test reading back the registers again")
-	for i in range(20):
-		#print("i =", i)
-		data_in = (0x1234 + i*0x1111)&0xffff
-		data_out = await reg_read(tqv, i)
-		expected = data_in & ((1 << nbits[i>>2]) - 1)
-		#print("data_out =", hex(data_out), "expected =", hex(expected))
-		assert data_out == expected
+		# Check that not all PWM output samples remain at the zero level now that the amp registers are nonzero
+		dut._log.info("Check PWM output when synth is running")
+		ok = False
+		for i in range(10):
+			n_high, n_total = await read_pwm_duty(dut, i > 0)
+			#print("n_high =", n_high)
+			assert n_total == n_total_0
+			if n_high != n_high_0: ok = True
+		assert ok
 
-	# Check that not all PWM output samples remain at the zero level now that the amp registers are nonzero
-	dut._log.info("Check PWM output when synth is running")
-	ok = False
-	for i in range(10):
-		n_high, n_total = await read_pwm_duty(dut, i > 0)
-		#print("n_high =", n_high)
-		assert n_total == n_total_0
-		if n_high != n_high_0: ok = True
-	assert ok
+	ext_amp = 0
+	await reg_write(tqv, 4*9+2, ext_amp << 13) # cfg
 
 	# Apply sweep values
 	dut._log.info("Apply sweeps")
@@ -173,7 +186,9 @@ async def test_project(dut):
 	for (i, dir) in enumerate(sweep_dirs):
 		data_in = (0x1234 + i*0x1111)&0xffff
 		data_out = await reg_read(tqv, i)
-		expected = data_in & ((1 << nbits[i>>2]) - 1)
+		nb = nbits[i>>2]
+		if (i>>2) == 1 and ext_amp == 0: nb = 6
+		expected = data_in & ((1 << nb) - 1)
 		if   dir == 0: assert data_out == expected
 		elif dir  < 0: assert data_out  < expected
 		elif dir  > 0: assert data_out  > expected
@@ -207,6 +222,5 @@ async def test_project(dut):
 		dut._log.info("Read detune_counter = " + hex(dc_read))
 
 		if i == 1: assert dc_read == detune_counter
-
 
 	assert not await tqv.is_interrupt_asserted()

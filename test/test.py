@@ -10,7 +10,7 @@ from cocotb.utils import get_sim_time
 
 from riscvmodel.insn import *
 
-from riscvmodel.regnames import x0, x1, sp, gp, tp, a0, a1, a2, a3, a4
+from riscvmodel.regnames import x0, x1, sp, gp, tp, a0, a1, a2, a3, a4, a5
 from riscvmodel import csrnames
 from riscvmodel.variant import RV32E
 
@@ -232,6 +232,22 @@ async def test_time_limit(dut):
 
 @cocotb.test()
 async def test_scratch_memory(dut):
+    def encode_sw2(base_reg, reg, imm):
+        instr = InstructionSW(base_reg, reg, imm).encode()
+        return instr | (3 << 12)
+
+    def encode_sw4(base_reg, reg, imm):
+        instr = InstructionSW(base_reg, reg, imm).encode()
+        return instr | (7 << 12)
+
+    def encode_lw2(reg, base_reg, imm):
+        instr = InstructionLW(reg, base_reg, imm).encode()
+        return instr | (3 << 12)
+
+    def encode_lw4(reg, base_reg, imm):
+        instr = InstructionLW(reg, base_reg, imm).encode()
+        return instr | (7 << 12)
+
     dut._log.info("Start")
     
     clock = Clock(dut.clk, 31.25, unit="ns")
@@ -256,48 +272,93 @@ async def test_scratch_memory(dut):
         await send_instr(dut, InstructionLW(x1, x0, i-0x400).encode())
         assert await read_reg(dut, x1) == i
 
-    mask = [0xfff, 0xffe, 0xffc]
+    mask = [0xfff, 0xffe, 0xffc, 0xff8, 0xff0]
     for i in range(20):
-        write_len = random.randint(0,2)
+        write_len = random.randint(0,4)
         write_addr = random.randint(0,RAM_SIZE - (1 << write_len)) & mask[write_len]
         write_val = random.randint(0,0xffffffff)
-        await send_instr(dut, InstructionLUI(x1, (write_val >> 12) + ((write_val >> 11) & 1)).encode())
-        await send_instr(dut, InstructionADDI(x1, x1, (write_val & 0xfff) - (0x1000 if write_val & 0x800 else 0)).encode())
+        await send_instr(dut, InstructionLUI(a0, (write_val >> 12) + ((write_val >> 11) & 1)).encode())
+        await send_instr(dut, InstructionADDI(a0, a0, (write_val & 0xfff) - (0x1000 if write_val & 0x800 else 0)).encode())
+        if write_len >= 3:
+            write_val2 = random.randint(0,0xffffffff)
+            await send_instr(dut, InstructionLUI(a1, (write_val2 >> 12) + ((write_val2 >> 11) & 1)).encode())
+            await send_instr(dut, InstructionADDI(a1, a1, (write_val2 & 0xfff) - (0x1000 if write_val2 & 0x800 else 0)).encode())
+        if write_len >= 4:
+            write_val3 = random.randint(0,0xffffffff)
+            write_val4 = random.randint(0,0xffffffff)
+            await send_instr(dut, InstructionLUI(a2, (write_val3 >> 12) + ((write_val3 >> 11) & 1)).encode())
+            await send_instr(dut, InstructionADDI(a2, a2, (write_val3 & 0xfff) - (0x1000 if write_val3 & 0x800 else 0)).encode())
+            await send_instr(dut, InstructionLUI(a3, (write_val4 >> 12) + ((write_val4 >> 11) & 1)).encode())
+            await send_instr(dut, InstructionADDI(a3, a3, (write_val4 & 0xfff) - (0x1000 if write_val4 & 0x800 else 0)).encode())
 
-        if write_len == 0: await send_instr(dut, InstructionSB(x0, x1, write_addr-0x400).encode())
-        elif write_len == 1: await send_instr(dut, InstructionSH(x0, x1, write_addr-0x400).encode())
-        else: await send_instr(dut, InstructionSW(x0, x1, write_addr-0x400).encode())
+        if write_len == 0: await send_instr(dut, InstructionSB(x0, a0, write_addr-0x400).encode())
+        elif write_len == 1: await send_instr(dut, InstructionSH(x0, a0, write_addr-0x400).encode())
+        elif write_len == 2: await send_instr(dut, InstructionSW(x0, a0, write_addr-0x400).encode())
+        elif write_len == 3: await send_instr(dut, encode_sw2(x0, a0, write_addr-0x400))
+        else: await send_instr(dut, encode_sw4(x0, a0, write_addr-0x400))
 
         read_len = write_len
         read_addr = write_addr
-        read_val = write_val
+        read_val = write_val        
         if write_len == 0: read_val &= 0xff
         if write_len == 1: read_val &= 0xffff
+        if write_len > 2: read_val2 = write_val2
+        if write_len > 3: 
+            read_val3 = write_val3
+            read_val4 = write_val4
 
         RAM[write_addr] = write_val & 0xff
         if write_len > 0: RAM[write_addr + 1] = (write_val >> 8) & 0xff
         if write_len > 1:
             RAM[write_addr + 2] = (write_val >> 16) & 0xff
             RAM[write_addr + 3] = (write_val >> 24) & 0xff
+        if write_len > 2:
+            RAM[write_addr + 4] = write_val2 & 0xff
+            RAM[write_addr + 5] = (write_val2 >> 8) & 0xff
+            RAM[write_addr + 6] = (write_val2 >> 16) & 0xff
+            RAM[write_addr + 7] = (write_val2 >> 24) & 0xff
+        if write_len > 3:
+            RAM[write_addr + 8] = write_val3 & 0xff
+            RAM[write_addr + 9] = (write_val3 >> 8) & 0xff
+            RAM[write_addr + 10] = (write_val3 >> 16) & 0xff
+            RAM[write_addr + 11] = (write_val3 >> 24) & 0xff
+            RAM[write_addr + 12] = write_val4 & 0xff
+            RAM[write_addr + 13] = (write_val4 >> 8) & 0xff
+            RAM[write_addr + 14] = (write_val4 >> 16) & 0xff
+            RAM[write_addr + 15] = (write_val4 >> 24) & 0xff
 
-        if read_len == 0: await send_instr(dut, InstructionLBU(x1, x0, read_addr-0x400).encode())
-        elif read_len == 1: await send_instr(dut, InstructionLHU(x1, x0, read_addr-0x400).encode())
-        else: await send_instr(dut, InstructionLW(x1, x0, read_addr-0x400).encode())
-        assert await read_reg(dut, x1) == read_val
+        if read_len == 0: await send_instr(dut, InstructionLBU(a2, x0, read_addr-0x400).encode())
+        elif read_len == 1: await send_instr(dut, InstructionLHU(a2, x0, read_addr-0x400).encode())
+        elif read_len == 2: await send_instr(dut, InstructionLW(a2, x0, read_addr-0x400).encode())
+        elif read_len == 3: await send_instr(dut, encode_lw2(a2, x0, read_addr-0x400))
+        else: await send_instr(dut, encode_lw4(a2, x0, read_addr-0x400))
+        assert await read_reg(dut, a2, read_len >= 3, read_len == 4) == read_val
+        if read_len > 2:
+            assert await read_reg(dut, a3) == read_val2
+        if read_len > 3:
+            assert await read_reg(dut, a4) == read_val3
+            assert await read_reg(dut, a5) == read_val4
 
     for i in range(1000):
         if random.randint(0, 1) == 0:
-            read_len = random.randint(0,2)
+            read_len = random.randint(0,4)
             read_addr = random.randint(0,RAM_SIZE - (1 << read_len)) & mask[read_len]
-            if read_len == 0: await send_instr(dut, InstructionLB(x1, x0, read_addr-0x400).encode())
-            elif read_len == 1: await send_instr(dut, InstructionLH(x1, x0, read_addr-0x400).encode())
-            else: await send_instr(dut, InstructionLW(x1, x0, read_addr-0x400).encode())
-            read_val = await read_reg(dut, x1)
+            if read_len == 0: await send_instr(dut, InstructionLB(a0, x0, read_addr-0x400).encode())
+            elif read_len == 1: await send_instr(dut, InstructionLH(a0, x0, read_addr-0x400).encode())
+            elif read_len == 2: await send_instr(dut, InstructionLW(a0, x0, read_addr-0x400).encode())
+            elif read_len == 3: await send_instr(dut, encode_lw2(a0, x0, read_addr-0x400))
+            else: await send_instr(dut, encode_lw4(a0, x0, read_addr-0x400))
+            read_val = await read_reg(dut, a0, read_len >= 3)
             assert (read_val & 0xFF) == RAM[read_addr]
             if read_len > 0: assert ((read_val >> 8) & 0xFF) == RAM[read_addr+1]
             if read_len > 1: 
                 assert ((read_val >> 16) & 0xFF) == RAM[read_addr+2]
                 assert ((read_val >> 24) & 0xFF) == RAM[read_addr+3]
+            if read_len > 2:
+                assert await read_reg(dut, a1) == RAM[read_addr+7] << 24 | RAM[read_addr+6] << 16 | RAM[read_addr+5] << 8 | RAM[read_addr+4]
+            if read_len > 3:
+                assert await read_reg(dut, a2) == RAM[read_addr+11] << 24 | RAM[read_addr+10] << 16 | RAM[read_addr+9] << 8 | RAM[read_addr+8]
+                assert await read_reg(dut, a3) == RAM[read_addr+15] << 24 | RAM[read_addr+14] << 16 | RAM[read_addr+13] << 8 | RAM[read_addr+12]
         else:
             write_len = random.randint(0,2)
             write_addr = random.randint(0,RAM_SIZE - (1 << write_len)) & mask[write_len]

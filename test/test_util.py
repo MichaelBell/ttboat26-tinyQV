@@ -448,10 +448,10 @@ async def expect_store(dut, addr, bytes=4, allow_long_delay=False, allow_interru
 
     return val
 
-async def read_reg(dut, reg, allow_long_delay=False):
+async def read_reg(dut, reg, allow_long_delay=False, allow_long_delay_before=False):
     offset = random.randint(-0x400, 0x3FF)
     instr = InstructionSW(gp, reg, offset).encode()
-    await send_instr(dut, instr)
+    await send_instr(dut, instr, False, allow_long_delay_before)
 
     return await expect_store(dut, 0x1000400 + offset, 4, allow_long_delay)
 

@@ -79,6 +79,8 @@ project:
     - "user_peripherals/vga_gfx/peripheral.v"
     - "user_peripherals/vga_gfx/vga_timing.v"
     - "user_peripherals/vga_gfx/latch_config.v"
+    - "user_peripherals/pdm/cic3_pdm.v"
+    - "user_peripherals/pdm/peripheral.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).

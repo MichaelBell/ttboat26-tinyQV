@@ -304,7 +304,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         .user_interrupt(user_interrupts[6])
     );
 
-    tqvp_laurie_dwarf_line_table_accelerator i_user_peri07 (
+    tqvp_jnms_pdm i_user_peri07 (
         .clk(clk),
         .rst_n(rst_n_rebuf),
 
@@ -376,7 +376,7 @@ module tinyQV_peripherals #(parameter CLOCK_KHZ=25200) (
         .data_ready(data_ready_from_user_peri[10])
     );
 
-    tqvp_full_empty_no_irq i_user_peri11(
+    tqvp_laurie_dwarf_line_table_accelerator i_user_peri11(
         .clk(clk),
         .rst_n(rst_n_rebuf),
 

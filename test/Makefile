@@ -9,11 +9,11 @@ USER_PERIPHERAL_6 = CORDIC.test_trigonometric_simple \
                                          CORDIC.test_hyperbolic_rotating_sweep_and_vis \
                                          CORDIC.test_hyperbolic_rotating_simple \
                                          CORDIC.test_circular_rotating_sweep_and_vis
-USER_PERIPHERAL_7 = tqvp_laurie_dwarf_line_table_accelerator.test
+USER_PERIPHERAL_7 = pdm.test
 USER_PERIPHERAL_8 = prism.test
 USER_PERIPHERAL_9 = 
 USER_PERIPHERAL_10 = intercal_alu.test
-USER_PERIPHERAL_11 = 
+USER_PERIPHERAL_11 = tqvp_laurie_dwarf_line_table_accelerator.test
 USER_PERIPHERAL_12 = vga_gfx.test
 USER_PERIPHERAL_13 = 
 USER_PERIPHERAL_14 = 

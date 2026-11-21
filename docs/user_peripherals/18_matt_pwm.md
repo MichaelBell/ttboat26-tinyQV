@@ -25,6 +25,8 @@ Dual channel 8 bit PWM generator with adjustable period.
 * The default PWM_MULT is 0.
 * With PWM_MULT as 0, a PWM0 value of 10 will result in 10 clocks high out of 256 clocks.
 * With PWM_MULT as 1, a PWM0 value of 10 will result in 20 clocks high out of 512 clocks.
+* With PWM_MULT as 0 and PWM_WRAP 100, a PWM0 value of 10 will result in 10 clocks high out of 101 clocks.
+* With PWM_MULT as 1 and PWM_WRAP 100, a PWM0 value of 10 will result in 20 clocks high out of 202 clocks.
 
 ## Register map
 
@@ -35,6 +37,7 @@ Document the registers that are used to interact with your peripheral
 | 0x00    | PWM0       | R/W    | PWM 0 value                                                         |
 | 0x01    | PWM1       | R/W    | PWM 1 value                                                         |
 | 0x02    | PWM_MULT   | R/W    | PWM period multiplier                                               |
+| 0x03    | PWM_WRAP   | R/W    | PWM wrap, both pwm counters will wrap after this value (default 255) |
 
 ## How to test
 

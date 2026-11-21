@@ -60,7 +60,27 @@ async def test_project(dut):
             # do the test
             await test_pwm(dut, pwm_value, clock_cycles)
 
-async def test_pwm(dut, pwm_value, pwm_strobe):
+    wrap = 100
+    await tqv.write_reg(3, wrap)
+    assert await tqv.read_reg(3) == wrap
+    dut._log.info(f"set PWM wrap to {wrap}")
+    for pwm_strobe, clock_cycles in pwm_strobes:
+        for pwm_value in [1, 10, 40, 80]:
+            dut._log.info(f"set PWM channels to {pwm_value}")
+            await tqv.write_reg(0, pwm_value)
+            assert await tqv.read_reg(0) == pwm_value 
+            await tqv.write_reg(1, pwm_value)
+            assert await tqv.read_reg(1) == pwm_value 
+            dut._log.info(f"set PWM strobe to {pwm_strobe} == {clock_cycles} clocks")
+            await tqv.write_reg(2, pwm_strobe)
+            assert await tqv.read_reg(2) == pwm_strobe 
+
+            # wait for at least 2 full PWM cycles to ensure everything is ready
+            await ClockCycles(dut.clk, wrap + 1)
+            # do the test
+            await test_pwm(dut, pwm_value, clock_cycles, wrap)    
+
+async def test_pwm(dut, pwm_value, pwm_strobe, wrap=255):
     
     dut._log.info(f"sync to PWM rising edge")
     # sync to pwm gen
@@ -73,8 +93,8 @@ async def test_pwm(dut, pwm_value, pwm_strobe):
         if ASSERT: assert dut.uo_out.value[0] == 1, f"failed on cycle {i}"
         if ASSERT: assert dut.uo_out.value[1] == 1, f"failed on cycle {i}"
         await ClockCycles(dut.clk, pwm_strobe)
-    dut._log.info(f"assert {pwm_strobe * (255 - pwm_value)} clocks of PWM low")
-    for i in range(255 - pwm_value):
+    dut._log.info(f"assert {pwm_strobe * (wrap - pwm_value)} clocks of PWM low")
+    for i in range(wrap - pwm_value):
         if ASSERT: assert dut.uo_out.value[0] == 0, f"failed on cycle {i}"
         if ASSERT: assert dut.uo_out.value[1] == 0, f"failed on cycle {i}"
         await ClockCycles(dut.clk, pwm_strobe)

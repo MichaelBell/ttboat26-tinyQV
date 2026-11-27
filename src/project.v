@@ -98,7 +98,7 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=32000) (
     wire debug_uart_tx_start = write_n != 2'b11 && connect_peripheral == PERI_DEBUG_UART;
 
     // Time
-    reg [6:2] time_limit;
+    reg [6:0] time_limit;
     wire time_pulse;
 
     // Peripherals interface
@@ -257,7 +257,7 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=32000) (
             PERI_ID:          data_from_read = "GF.3";
             PERI_GPIO_OUT_SEL:data_from_read = {25'h0, gpio_out_sel, 6'h0};
             PERI_DEBUG_UART_STATUS: data_from_read = {31'h0, debug_uart_tx_busy};
-            PERI_TIME_LIMIT:  data_from_read = {25'h0, time_limit, 2'b11};
+            PERI_TIME_LIMIT:  data_from_read = {25'h0, time_limit};
             PERI_USER:        data_from_read = peri_data_out;
             default:          data_from_read = 32'hFFFF_FFFF;
         endcase
@@ -269,11 +269,11 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=32000) (
     always @(posedge clk) begin
         if (!rst_reg_n) begin
             gpio_out_sel <= 1'b0;
-            time_limit <= (CLOCK_KHZ / 4000 - 1);
+            time_limit <= (CLOCK_KHZ / 1000 - 1);
         end
         if (write_n != 2'b11) begin
             if (connect_peripheral == PERI_GPIO_OUT_SEL) gpio_out_sel <= data_to_write[6:6];
-            if (connect_peripheral == PERI_TIME_LIMIT) time_limit <= data_to_write[6:2];
+            if (connect_peripheral == PERI_TIME_LIMIT) time_limit <= data_to_write[6:0];
         end
     end
 
@@ -296,7 +296,7 @@ module tt_um_MichaelBell_tinyQV #(parameter CLOCK_KHZ=32000) (
             else time_count <= time_count + 1;
         end
     end
-    assign time_pulse = time_count == {time_limit, 2'b11};
+    assign time_pulse = time_count == time_limit;
 
     // Debug
     always @(posedge clk) begin

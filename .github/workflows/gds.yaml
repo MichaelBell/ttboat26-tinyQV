@@ -17,7 +17,7 @@ jobs:
         uses: MichaelBell/tt-gds-action@ttboat26
         with:
           pdk: gf180mcuD
-          librelane-version: 3.1.0.dev7
+          librelane-version: 3.1.0.dev8
           tools-ref: gf180-xxl
 
   precheck:

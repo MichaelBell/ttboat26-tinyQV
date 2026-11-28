@@ -53,6 +53,8 @@ module tqvp_toivoh_pwl_synth #(parameter BITS=`PWL_BASE_BITS, BITS_E=`PWL_BASE_B
 		input wire reg_raddr_p_valid,
 		output wire [`REG_BITS-1:0] reg_rdata_p,
 `endif
+
+		output int lfsr_extra_bits_out,
 `endif
 
 `ifdef USE_ALT_INTERFACE
@@ -185,6 +187,7 @@ module tqvp_toivoh_pwl_synth #(parameter BITS=`PWL_BASE_BITS, BITS_E=`PWL_BASE_B
 	.ireg_raddr(ireg_raddr), .ireg_waddr(ireg_waddr), .ireg_rdata(ireg_rdata), .ireg_wdata(ireg_wdata),
 	.reg_we_internal_out(reg_we_internal_out), .reg_waddr_internal_out(reg_waddr_internal_out), .reg_wdata_internal_out(reg_wdata_internal_out),
 	.acc_out(acc_out), 	.new_out_acc(new_out_acc), 	.out_acc_out(out_acc_out), 	.pwm_out_offset(pwm_out_offset),
+	.lfsr_extra_bits_out(lfsr_extra_bits_out),
 `else
 `ifdef USE_ALT_INTERFACE
 		.reg_we_internal_out(reg_we_internal),
@@ -382,7 +385,7 @@ module pwls_ALU #(parameter BITS=12, BITS_E=13, SHIFT_COUNT_BITS=4, OUT_RSHIFT=3
 
 `ifdef USE_QUANTIZATION_LEVEL
 	wire [2:0] quantization_level = channel_mode[`CHANNEL_MODE_BIT_QUANT2 -: 3];
-	wire [BITS_E-1:0] quantization_mask = (-1 << (OUT_RSHIFT - 1)) << quantization_level;
+	wire [BITS_E-1:0] quantization_mask = (-1 << (BITS-1 - 8)) << quantization_level;
 `else
 	wire [BITS_E-1:0] quantization_mask = -1 << (BITS-1-4);
 `endif
@@ -1356,6 +1359,8 @@ module pwls_ALU_unit #(parameter BITS=12, BITS_E=13, NUM_CHANNELS=4, SHIFT_COUNT
 		output int ireg_rdata,
 		input int ireg_wdata,
 		output wire last_osc_wrapped,
+
+		output int lfsr_extra_bits_out,
 `endif
 
 		output wire pred_out,
@@ -1404,6 +1409,9 @@ module pwls_ALU_unit #(parameter BITS=12, BITS_E=13, NUM_CHANNELS=4, SHIFT_COUNT
 `endif
 
 	reg [LFSR_EXTRA_BITS-1:0] lfsr_extra_bits;
+`ifdef USE_TEST_INTERFACE
+	assign lfsr_extra_bits_out = lfsr_extra_bits;
+`endif
 
 
 	wire stereo_en = cfg[`CFG_BIT_STEREO_EN];
@@ -2015,6 +2023,8 @@ module pwls_multichannel_ALU_unit #(
 		// expose internal register writes
 		output int reg_waddr_internal_out,
 		output int reg_wdata_internal_out,
+
+		output int lfsr_extra_bits_out,
 `endif
 		output wire reg_we_internal_out,
 
@@ -2701,6 +2711,7 @@ module pwls_multichannel_ALU_unit #(
 		.step_part_enables(step_part_enables),
 		.last_osc_wrapped(last_osc_wrapped),
 		.ireg_raddr(ireg_raddr), .ireg_waddr(ireg_waddr), .ireg_rdata(ireg_rdata), .ireg_wdata(ireg_wdata),
+		.lfsr_extra_bits_out(lfsr_extra_bits_out),
 `endif
 `ifdef USE_NEW_READ
 		.reg_read_index(reg_read_index), .reg_read_valid(reg_raddr_valid),

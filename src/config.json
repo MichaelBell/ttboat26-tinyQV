@@ -32,8 +32,8 @@
   "CLOCK_PERIOD": 30,
 
   "//": "Hold slack margin - Increase them in case you are getting hold violations.",
-  "PL_RESIZER_HOLD_SLACK_MARGIN": 0.05,
-  "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.05,
+  "PL_RESIZER_HOLD_SLACK_MARGIN": 0.1,
+  "GRT_RESIZER_HOLD_SLACK_MARGIN": 0.1,
 
   "//": "Setup slack margin - set resizer to ignore the slow corners, but add plenty of margin.",
   "PL_RESIZER_SETUP_SLACK_MARGIN": 4.5,
@@ -174,6 +174,6 @@
     "i_tinyqv.cpu.i_scratch.i_sram VPWR VGND VDD VSS"],
   "FP_MACRO_HORIZONTAL_HALO": 2,
   "FP_MACRO_VERTICAL_HALO": 1,
-  "//": "No signal routing on Metal4 over the macro: the abstract hides only the macro's own stripe columns there, so the global router would otherwise send nets through and short the tile's stripes (the LISA chip's gf11).",
-  "ROUTING_OBSTRUCTIONS": [["Metal4", 851.20, 1097.60, 1436.96, 1148.56]]
+  "//": "No signal routing on Metal3 or 4 over the macro: the abstract hides only the macro's own stripe columns there, so the global router would otherwise send nets through and short the tile's stripes (the LISA chip's gf11).",
+  "ROUTING_OBSTRUCTIONS": [["Metal4", 851.20, 1097.60, 1436.96, 1148.56], ["Metal3", 851.20, 1097.60, 1436.96, 1148.56], ["Metal2", 851.20, 1099.60, 1436.96, 1148.56]]
 }
